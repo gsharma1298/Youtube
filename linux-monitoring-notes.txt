@@ -1,0 +1,668 @@
+Build a Complete AWS Linux Monitoring & Alerting System | Prometheus + Grafana + Node Exporter
+
+
+                    ┌──────────────────────────────┐
+                    │        Ubuntu EC2 Server	   │
+                    │                              │
+                    │        Public IP    	   │
+                    └──────────────┬───────────────┘
+                                   	│
+             ┌─────────────────────┼─────────────────────┐
+             │                     │                     │
+             ▼                     ▼                     ▼
+    ┌────────────────┐    ┌────────────────┐    ┌────────────────┐
+    │ Node Exporter  │    │   Prometheus   │    │    Grafana     │
+    │                │    │                │    │                │
+    │    Port 9100   │───►│    Port 9090   │───►│    Port 3000   │
+    │ 	             │    │                │    │                │
+    │ Collects Linux │    │ Stores &       │    │ Visualizes     │
+    │ system metrics │    │ queries metrics│    │ metrics        │
+    └────────────────┘    └────────────────┘    └───────┬────────┘
+                                                         │
+                                                         │ Alert Rules
+                                                         ▼
+                                                ┌────────────────┐
+                                                │ Gmail / SMTP   │
+                                                │                │
+                                                │ Email Alert    │
+                                                └────────────────┘
+
+
+
+
+
+
+
+
+
+Ubuntu Server
+     │
+     │ CPU / RAM / Disk / Network metrics
+     ▼
+Node Exporter :9100
+     │
+     │ /metrics
+     ▼
+Prometheus :9090
+     │
+     │ PromQL
+     ▼
+Grafana :3000
+     │
+     ├──────────────► Dashboard
+     │
+     │
+     └──────────────► Alert Rule
+                         │
+                         │
+                   CPU >= 70%
+                   RAM >= 70%
+                         │
+                         ▼
+                    Gmail Alert
+
+
+
+
+
+
+┌────────────────────┬──────────┬─────────────────────────┐
+│ Component 					 │ Port         │ Purpose                 			 │
+├────────────────────┼──────────┼─────────────────────────┤
+│ Node Exporter  		    │ 9100         │ Linux metrics           			 │
+│ Prometheus     		    │ 9090         │ Metrics collection     			 │
+│ Grafana        		    │ 3000         │ Dashboard & alerts     			 │
+│ Gmail SMTP    			    │ 587         │ Email notifications   			    │
+└────────────────────┴──────────┴─────────────────────────┘
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Yes. We can install Prometheus + Node Exporter + Grafana on Ubuntu and connect them so:
+
+
+Node Exporter → Prometheus → Grafana
+
+Step 1 — Update Ubuntu
+Run:
+sudo apt update
+sudo apt upgrade -y
+
+
+Step 3 — Install Node Exporter
+
+Node Exporter exposes Linux system metrics on port 9100. Prometheus
+
+First install required tools:
+sudo apt install -y wget tar
+
+Download Node Exporter:
+cd /tmp
+
+wget https://github.com/prometheus/node_exporter/releases/download/v1.11.1/node_exporter-1.11.1.linux-amd64.tar.gz
+
+Extract:
+tar -xvf node_exporter-1.11.1.linux-amd64.tar.gz
+
+Copy binary:
+sudo cp node_exporter-*/node_exporter /usr/local/bin/
+
+Create Node Exporter user:
+sudo useradd --no-create-home --shell /bin/false node_exporter
+
+Set ownership:
+sudo chown node_exporter:node_exporter /usr/local/bin/node_exporter
+
+Create Node Exporter service
+sudo nano /etc/systemd/system/node_exporter.service
+
+Add:
+[Unit]
+Description=Node Exporter
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+User=node_exporter
+Group=node_exporter
+Type=simple
+ExecStart=/usr/local/bin/node_exporter
+
+[Install]
+WantedBy=multi-user.target
+
+Save:
+CTRL + O → Enter → CTRL + X
+
+Start it:
+sudo systemctl daemon-reload
+sudo systemctl enable node_exporter
+sudo systemctl start node_exporter
+
+Check:
+sudo systemctl status node_exporter
+
+You should see:
+Active: active (running)
+Test:
+curl http://43.205.131.182:9100/metrics
+You should get a large amount of metric data. Grafana's documentation also uses localhost:9100/metrics to verify Node Exporter. Grafana Labs
+
+
+
+
+Step 4 — Install Prometheus
+
+Prometheus Installation — Ubuntu
+
+Step 1 — Create Prometheus user
+sudo useradd --no-create-home --shell /bin/false prometheus
+
+
+Step 2 — Create directories
+sudo mkdir -p /etc/prometheus
+sudo mkdir -p /var/lib/Prometheus
+
+
+Download Prometheus
+cd /tmp
+
+wget https://github.com/prometheus/prometheus/releases/download/v3.6.0/prometheus-3.6.0.linux-amd64.tar.gz
+
+
+Extract
+tar -xvf prometheus-3.6.0.linux-amd64.tar.gz
+
+Run:
+cd /tmp/prometheus-3.6.0.linux-amd64
+
+Check:
+ls
+You should see:
+LICENSE
+NOTICE
+prometheus
+prometheus.yml
+promtool
+
+Step 4 — Copy Prometheus binaries
+sudo cp prometheus /usr/local/bin/
+sudo cp promtool /usr/local/bin/
+
+Verify:
+prometheus --version
+and:
+promtool --version
+You should see version 3.6.0.
+
+Step 5 — Copy Prometheus configuration
+sudo cp prometheus.yml /etc/prometheus/
+
+Check:
+ls -l /etc/prometheus/
+
+You should see:
+prometheus.yml
+
+Step 6 — Configure Prometheus
+
+Open the configuration:
+sudo nano /etc/prometheus/prometheus.yml
+
+Delete the existing contents and put:
+global:
+  scrape_interval: 15s
+
+scrape_configs:
+
+  - job_name: "prometheus"
+    static_configs:
+      - targets: ["localhost:9090"]
+
+  - job_name: "node_exporter"
+    static_configs:
+      - targets: ["localhost:9100"]
+
+Save:
+CTRL + O → Enter → CTRL + X
+
+Step 7 — Set ownership
+sudo chown -R prometheus:prometheus /etc/prometheus
+sudo chown -R prometheus:prometheus /var/lib/prometheus
+sudo chown prometheus:prometheus /usr/local/bin/prometheus
+sudo chown prometheus:prometheus /usr/local/bin/promtool
+
+Step 8 — Validate configuration
+Run:
+sudo -u prometheus promtool check config /etc/prometheus/prometheus.yml
+
+Expected:
+SUCCESS: /etc/prometheus/prometheus.yml is valid prometheus config file syntax
+
+If you get SUCCESS, continue.
+
+
+Step 9 — Create Prometheus systemd service
+Run:
+sudo nano /etc/systemd/system/prometheus.service
+
+Add:
+
+[Unit]
+Description=Prometheus Monitoring
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+User=prometheus
+Group=prometheus
+Type=simple
+
+ExecStart=/usr/local/bin/prometheus \
+  --config.file=/etc/prometheus/prometheus.yml \
+  --storage.tsdb.path=/var/lib/prometheus/
+
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target
+
+Save:
+CTRL + O → Enter → CTRL + X
+
+Step 10 — Reload systemd
+sudo systemctl daemon-reload
+
+Step 11 — Enable Prometheus
+This makes Prometheus start automatically after reboot:
+sudo systemctl enable Prometheus
+
+Step 12 — Start Prometheus
+sudo systemctl start Prometheus
+
+Step 13 — Check Prometheus
+sudo systemctl status Prometheus
+
+You want:
+Active: active (running)
+Press:
+q
+to exit the status screen.
+
+
+Step 14 — Check Prometheus port
+Run:
+sudo ss -lntp | grep 9090
+
+You should see something similar to:
+LISTEN 0 4096 0.0.0.0:9090
+
+Step 15 — Test Prometheus locally
+Run:
+
+curl http://:9090/-/ready
+
+Expected:
+Prometheus Server is Ready.
+You can also run:
+curl http://localhost:9090/api/v1/status/buildinfo
+
+Step 16 — Check Prometheus in browser
+Your EC2 public IP is:
+65.0.54.33
+Open:
+http://65.0.54.33:9090
+If you can't access it, check your AWS EC2 Security Group.
+Add inbound rule:
+Type: Custom TCP
+Port: 9090
+Source: Your IP
+For a temporary lab, you can use 0.0.0.0/0, but don't do that for production.
+
+
+Step 17 — Check Prometheus Targets
+In the Prometheus web UI:
+Status → Targets
+You should eventually see:
+prometheus       UP
+node_exporter    UP
+The Node Exporter target will only show UP if Node Exporter is already running on port 9100.
+You can also check directly:
+curl http://localhost:9100/metrics
+If you get lots of metrics such as:
+node_cpu_seconds_total
+node_memory_MemTotal_bytes
+node_filesystem_size_bytes
+Node Exporter is working.
+Complete architecture
+Your setup will be:
+                 Ubuntu EC2
+                     │
+          ┌──────────┴──────────┐
+          │                     │
+          ▼                     ▼
+    Node Exporter          Prometheus
+       :9100                  :9090
+          │                     │
+          │    metrics          │
+          └──────────►──────────┘
+                                │
+                                ▼
+                             Grafana
+                              :3000
+Important correction from the previous steps
+For your Prometheus 3.6.0 installation, you do not need:
+sudo cp -r prometheus-*/consoles /etc/prometheus/
+sudo cp -r prometheus-*/console_libraries /etc/prometheus/
+Your extracted directory contains only:
+
+
+
+
+
+Step 7 — Install Grafana
+
+Install prerequisites:
+
+sudo apt-get install -y apt-transport-https wget gnupg
+
+Create keyring:
+sudo mkdir -p /etc/apt/keyrings
+
+Download Grafana GPG key:
+sudo wget -O /etc/apt/keyrings/grafana.asc https://apt.grafana.com/gpg-full.key
+
+Set permissions:
+sudo chmod 644 /etc/apt/keyrings/grafana.asc
+
+Add repository:
+echo "deb [signed-by=/etc/apt/keyrings/grafana.asc] https://apt.grafana.com stable main" | sudo tee /etc/apt/sources.list.d/grafana.list
+
+Update:
+sudo apt-get update
+
+Install Grafana OSS:
+sudo apt-get install -y grafana
+
+Step 8 — Start Grafana
+sudo systemctl daemon-reload
+sudo systemctl enable grafana-server
+sudo systemctl start grafana-server
+
+Check:
+sudo systemctl status grafana-server
+
+You want:
+Active: active (running)
+
+
+Step 9 — Check all three services
+Run:
+sudo systemctl status node_exporter
+sudo systemctl status prometheus
+sudo systemctl status grafana-server
+
+All three should show:
+Active: active (running)
+
+Step 10 — Access from browser
+If this is an AWS EC2 Ubuntu server, first find its public IP:
+curl ifconfig.me
+
+Then access:
+Prometheus
+http://YOUR_PUBLIC_IP:9090
+
+
+Node Exporter
+http://YOUR_PUBLIC_IP:9100/metrics
+
+Grafana
+http://YOUR_PUBLIC_IP:3000
+Grafana uses port 3000 by default.
+
+If this is EC2, make sure the Security Group allows:
+Port	Service
+3000	Grafana
+9090	Prometheus
+9100	Node Exporter
+
+If note able to access open ports in security group
+
+
+
+For production, don't expose 9090/9100 publicly; restrict them to your monitoring/admin network.
+
+
+Step 11 — Configure Grafana
+Open:
+http://YOUR_PUBLIC_IP:3000
+Login screen will appear.
+
+
+default login
+username = admin
+password = admin
+
+Then:
+Connections → Data sources → Add data source → Prometheus
+
+Set URL:
+http://localhost:9090
+Click:
+Save & test
+You should get:
+Successfully queried the Prometheus API.
+
+
+Step 12 — Import Node Exporter dashboard
+In Grafana:
+Dashboards → New → Import
+Use a Node Exporter dashboard such as:
+1860
+
+Select your Prometheus data source and import.
+You'll then have dashboards for:
+- CPU utilization
+- Memory utilization
+- Disk usage
+- Disk I/O
+- Network traffic
+- Load average
+- Filesystem usage
+- System uptime
+- Network errors
+Final architecture
+                Ubuntu Server
+                     │
+                     │
+              Node Exporter
+                 :9100
+                     │
+                     ▼
+                Prometheus
+                   :9090
+                     │
+                     ▼
+                  Grafana
+                   :3000
+                     │
+                     ▼
+              Monitoring Dashboard
+Prometheus collects the metrics, Node Exporter exposes Linux host metrics, and Grafana visualizes the Prometheus data.
+
+
+
+
+
+
+
+
+
+
+
+Prometheus → Grafana Alert → Gmail
+
+Step 1 — Create Gmail App Password
+In your Google Account:
+
+
+1. Enable 2-Step Verification.
+
+2. Open App Passwords.
+
+3. Create a new app password, for example:Grafana
+
+4. Google will generate a 16-character password.
+Keep that password safe. Don't send it to me or paste it in chat.
+
+Step 2 — Configure Grafana SMTP
+On your Ubuntu server:
+
+sudo vim /etc/grafana/grafana.ini
+Find:
+[smtp]
+
+Configure it like this:
+
+[smtp]
+enabled = true
+host = smtp.gmail.com:587
+user = yourgmail@gmail.com
+password = fwsx qbzm rrpj dkcr
+from_address = yourgmail@gmail.com
+from_name = Grafana
+startTLS_policy = MandatoryStartTLS
+
+Replace:
+yourgmail@gmail.com
+with your Gmail address.
+Replace:
+your-16-character-app-password
+with the Gmail App Password.
+Do not use your normal Gmail password.
+
+
+Step 3 — Restart Grafana
+sudo systemctl restart grafana-server
+
+Check:
+sudo systemctl status grafana-server
+
+You want:
+Active: active (running)
+
+Step 4 — Create Gmail Contact Point
+Open Grafana:
+http://65.0.54.33:3000
+
+Go to:
+Alerts & IRM → Contact points → Add contact point
+
+Select:
+Contact point type: Email
+Enter the email address where you want to receive alerts.
+For example:
+your-email@gmail.com
+
+Save it.
+
+Step 5 — Test Gmail notification
+On the Contact Points page, use Test for your email contact point.
+You should receive a Grafana test email.
+
+Step 6 — Create CPU alert
+
+Use this PromQL:
+100 - (avg by(instance) (rate(node_cpu_seconds_total{mode="idle"}[5m])) * 100)
+
+
+for ram
+100 * (1 - (node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes))
+
+
+
+
+Set:
+Condition: IS ABOVE 70
+Evaluate every: 1m
+For: 5m
+
+Select your Gmail contact point.
+
+Then save the rule.
+
+Result
+
+When CPU stays above 70% for 5 minutes, Grafana will send:
+Grafana Alert
+
+Alert: High CPU Usage
+Instance: your-server:9100
+CPU Usage: 75%
+Status: Firing
+And when CPU comes back down, Grafana can send a resolved notification as well.
+If you want, I can give you the exact grafana.ini configuration + CPU alert rule + test command, one command at a time.
+
+
+
+
+
+To test CPU load on Ubuntu
+
+If you want to intentionally increase CPU usage to test the alert,
+
+install stress-ng:
+
+sudo apt update
+sudo apt install -y stress-ng
+
+
+Then generate CPU load:
+
+stress-ng --cpu 4 --timeout 5m
+
+Check CPU:
+
+top
+
+
+
+
+
+To test CPU load on Ubuntu
+
+generate RAM load for testing
+
+Install:
+
+sudo apt install -y stress-ng
+
+Then consume approximately 70% RAM for 10 minutes:
+
+stress-ng --vm 1 --vm-bytes 70% --vm-keep --timeout 10m
+
+Monitor:
+
+watch -n 1 free -h
+
+Stop early with Ctrl+C.
+
+
+

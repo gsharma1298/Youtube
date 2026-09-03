@@ -1,0 +1,241 @@
+Production Log Monitoring & Observability Project | ELK Stack with Elasticsearch, Kibana & Filebeat
+
+
+
+AMAZON Q AI for troubeshooting
+
+
+┌─────────────────┐     ┌───────────────┐     ┌────────────────────┐     ┌─────────────────┐
+│ Application /   │     │               │     │                     │     │        		         │
+│ NGINX Server   │────▶│   FILEBEAT 	  │────▶│   ELASTICSEARCH    │────▶│     KIBANA    	   │
+│                 │Logs │               │Logs │                     │Query│              		   │
+│ App Logs        │     │ Log Shipper   │     │ Index & Store Logs 	│     │ 		Dashboards      │
+│ NGINX Logs   	  │     │               │     │ Search & Analytics 	│     │    	Visualization   │
+│ System Logs 	  │     │               │     │                   	│     │ 		 Monitoring     │
+└─────────────────┘     └───────────────┘     └────────────────────┘     └─────────────────┘
+
+
+
+
+
+sudo apt update & apt upgrade -y
+
+
+Elasticsearch
+
+
+# Import Elasticsearch GPG key
+
+wget -qO - https://artifacts.elastic.co/GPG-KEY-elasticsearch | sudo gpg --dearmor -o /usr/share/keyrings/elasticsearch-keyring.gpg
+
+# Add Elasticsearch repository
+
+echo "deb [signed-by=/usr/share/keyrings/elasticsearch-keyring.gpg] https://artifacts.elastic.co/packages/9.x/apt stable main" | sudo tee /etc/apt/sources.list.d/elastic-9.x.list
+
+# Install Elasticsearch
+
+sudo apt update && sudo apt install elasticsearch -y
+
+# Enable and start Elasticsearch
+
+sudo systemctl enable --now elasticsearch
+
+# Check Elasticsearch
+
+sudo systemctl status elasticsearch
+
+# Test Elasticsearch
+
+curl -k https://localhost:9200
+
+
+2. Elasticsearch configuration
+
+Edit:
+sudo nano /etc/elasticsearch/elasticsearch.yml
+
+Basic configuration:
+
+cluster.name: my-cluster
+node.name: node-1
+network.host: 0.0.0.0
+http.port: 9200
+
+Then:
+sudo systemctl restart elasticsearch
+
+
+
+xpack.security.http.ssl.enabled: false
+
+
+
+
+Install Nginx
+
+sudo apt install nginx -y
+
+
+
+Kibana
+
+# Install Kibana
+
+sudo apt install kibana -y
+
+# Edit Kibana configuration
+		
+
+Configuration:
+
+server.host: "0.0.0.0"
+server.port: 5601
+elasticsearch.hosts: ["http://localhost:9200"]
+
+Start Kibana:
+sudo systemctl enable --now kibana && sudo systemctl status kibana
+
+
+ Kibana enrollment token generate
+
+sudo /usr/share/elasticsearch/bin/elasticsearch-create-enrollment-token -s kibana
+
+
+Password RESET
+
+sudo /usr/share/elasticsearch/bin/elasticsearch-reset-password -u elastic -i
+
+
+Kibana verification code
+
+sudo /usr/share/kibana/bin/kibana-verification-code
+
+
+Access:
+http://<SERVER-IP>:5601
+
+
+
+
+Filebeat
+
+# Install Filebeat
+
+sudo apt install filebeat -y
+
+# Check Filebeat
+
+sudo systemctl status filebeat
+
+
+Configure Elasticsearch output:
+
+sudo nano /etc/filebeat/filebeat.yml
+
+Example:
+
+output.elasticsearch:
+  hosts: ["http://localhost:9200"]
+  username: "elastic"
+  password: "YOUR_ELASTIC_PASSWORD"
+  ssl.verification_mode: none
+
+Disable Logstash output if present:
+#output.logstash:
+#  hosts: ["localhost:5044"]
+
+
+
+5. Enable Nginx/Apache module example
+sudo filebeat modules enable nginx
+
+sudo filebeat modules list
+
+Configure module:
+
+sudo nano /etc/filebeat/modules.d/nginx.yml
+
+
+Then:
+sudo filebeat setup -e
+
+
+
+6. Start Filebeat
+
+sudo systemctl enable --now filebeat && sudo systemctl status filebeat
+
+
+Test:
+
+sudo filebeat test config
+sudo filebeat test output
+
+
+7. Verify everything
+
+sudo systemctl status elasticsearch kibana filebeat
+curl -k https://localhost:9200
+curl http://localhost:5601
+
+Flow to remember for interviews:
+
+Application/Server Logs → Filebeat → Elasticsearch → Kibana → Visualization
+
+
+
+
+amazon q  Installation
+
+
+wget https://desktop-release.q.us-east-1.amazonaws.com/latest/amazon-q.deb
+sudo dpkg -i amazon-q.deb
+sudo apt-get install -f -y
+q
+
+
+
+
+
+
+
+
+🔥 Nginx Access Monitoring Fields
+
+
+Monitoring	Field name
+
+
+Total Requests	event.dataset / event.category
+Request URL	url.path
+HTTP Method	http.request.method
+Status Code	http.response.status_code
+Response Bytes	http.response.body.bytes
+Response Time	nginx.access.response_time
+Client IP	client.ip
+User Agent	user_agent.original
+Hostname	host.name
+Server IP	host.ip
+Request Timestamp	@timestamp
+Referrer	http.request.referrer
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+.

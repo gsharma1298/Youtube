@@ -1,0 +1,49 @@
+Lost your EC2 key? Don’t panic—here’s the fix! 🔐
+
+# Original key:
+# old-key.pem = deleted or unavailable
+
+# EC2 still has old-key.pub in authorized_keys
+#
+# Important:
+# You cannot create old-key.pem again from old-key.pub.
+
+# New key architecture
+
+
+LOCAL COMPUTER (MobaXterm)
+--------------------------------
+govind       = new private key
+govind.pub   = new public key
+
+        SSH connection
+        ssh -i govind ...
+
+              |
+              v
+
+EC2 INSTANCE
+--------------------------------
+/home/ubuntu/.ssh/authorized_keys
+        contains govind.pub
+
+# Steps
+
+# 1. Create a new key on your local computer:
+ssh-keygen -t ed25519 -f govind
+
+# 2. Copy the new public key:
+cat govind.pub
+
+# 3. In the EC2 browser terminal:
+mkdir -p ~/.ssh
+nano ~/.ssh/authorized_keys
+
+# Paste govind.pub, save, and exit.
+# Save: Ctrl+O, Enter
+# Exit: Ctrl+X
+
+chmod 600 ~/.ssh/authorized_keys
+
+# 4. Connect with the new private key:
+ssh -i /home/mobaxterm/Desktop/govind ubuntu@YOUR_EC2_PUBLIC_DNS

@@ -1,0 +1,479 @@
+       MULTI-REGION EKS + ARGO CD PROJECT ARCHITECTURE
+===============================================================
+
+                         USERS / INTERNET
+                                |
+                         hr82.online
+                                v
+                     +--------------------+
+                     |    AWS Route 53    |
+                     |   Failover Routing |
+                     |                    |
+                     | Health Checks      |
+                     +---------+----------+
+                               |
+                 +-------------+-------------+
+                 |                           |
+          PRIMARY REGION              SECONDARY REGION
+           ap-south-1                  us-east-1
+                 v                           v
+        +----------------+          +----------------+
+        |      ALB       |          |      ALB       |
+        |   Primary ALB  |          | Secondary ALB  |
+        +--------+-------+          +--------+-------+
+                 v                           v
+        +----------------+          +----------------+
+        |   EKS Cluster  |          |   EKS Cluster  |
+        |  india         |          | 	 USA	     |
+        |                |          |      	     |
+        +--------+-------+          +--------+-------+
+                 v                           v
+        +----------------+          +----------------+
+        | Kubernetes     |          | Kubernetes     |
+        | Deployment     |          | Deployment     |
+        |                |          |                |
+        | Application    |          | Application    |
+        | Pods           |          | Pods           |
+        +--------+-------+          +--------+-------+
+                 |                           |
+                 +-------------+-------------+
+                         
+                               v
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ amazon ai  kiro install
+
+
+curl -fsSL https://cli.kiro.dev/install | bash
+
+source ~/.bashrc
+
+
+
+
+
+
+
+
+MICROSERVICES E-COMMERCE AWS EKS PROJECT
+=========================================
+
+1. CLONE REPOSITORY
+
+git clone https://github.com/gsharma1298/micro-service.git
+
+
+2. CONFIGURE AWS
+
+aws configure
+
+
+3. PROJECT DIRECTORY
+
+ls
+cd micro-service
+
+
+
+ls
+
+
+4. CREATE S3 BUCKETS / TERRAFORM STATE
+
+cd s3-buckets/
+
+terraform init
+
+terraform plan
+
+terraform apply -auto-approve
+
+
+5. CREATE NETWORK INFRASTRUCTURE
+
+cd ../terraform_main_ec2
+
+terraform init
+
+terraform plan
+
+terraform apply -auto-approve
+
+
+6. CHECK TERRAFORM STATE
+
+terraform state list
+
+
+7. SWITCH TO ROOT USER
+
+sudo -i
+
+
+8. CHECK DEVOPS TOOLS
+
+git --version
+
+java -version
+
+jenkins --version
+
+terraform -version
+
+mvn -v
+
+kubectl version --client --short
+
+eksctl version
+
+helm version --short
+
+docker --version
+
+trivy --version
+
+
+9. GET JENKINS ADMIN PASSWORD
+
+cat /var/lib/jenkins/secrets/initialAdminPassword
+
+
+10. UPDATE EKS KUBECONFIG
+
+aws eks --region us-east-1 update-kubeconfig --name project-eks
+
+
+11. CHECK EKS NODES
+
+kubectl get nodes
+
+
+12. CHECK ECR REPOSITORIES
+
+aws ecr describe-repositories --region us-east-1
+
+
+========================
+ARGOC D
+========================
+
+13. CREATE ARGOCD NAMESPACE
+
+kubectl create namespace argocd
+
+
+14. INSTALL ARGOCD
+
+kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
+
+
+15. CHECK ARGOCD PODS
+
+kubectl get pods -n argocd
+
+
+16. CHECK KUBERNETES NODES
+
+kubectl get nodes
+
+
+17. CHECK ALL ARGOCD RESOURCES
+
+kubectl get all -n argocd
+
+
+18. EDIT ARGOCD SERVICE
+
+kubectl edit svc argocd-server -n argocd
+
+CHANGE:
+
+type: ClusterIP
+
+TO:
+
+type: LoadBalancer
+
+
+19. GET ARGOCD LOAD BALANCER
+
+kubectl get svc argocd-server -n argocd
+
+
+20. GET ARGOCD ADMIN PASSWORD
+
+kubectl get secret argocd-initial-admin-secret -n argocd -o jsonpath="{.data.password}" | base64 -d && echo
+
+
+========================
+APPLICATION NAMESPACE
+========================
+
+21. CREATE DEV NAMESPACE
+
+kubectl create namespace app
+
+
+22. CHECK NAMESPACES
+
+kubectl get namespaces
+
+
+========================
+KUBERNETES VERIFICATION
+========================
+
+23. CHECK ALL PODS
+
+kubectl get pods -A
+
+
+24. CHECK ALL SERVICES
+
+kubectl get svc -A
+
+
+25. CHECK ALL DEPLOYMENTS
+
+kubectl get deployments -A
+
+
+26. CHECK EKS NODES WITH DETAILS
+
+kubectl get nodes -o wide
+
+
+27. CHECK ARGOCD PODS
+
+kubectl get pods -n argocd -o wide
+
+
+28. CHECK ARGOCD SERVICES
+
+kubectl get svc -n argocd
+
+
+29. CHECK APPLICATION PODS
+
+kubectl get pods -n app
+
+
+30. CHECK APPLICATION SERVICES
+
+kubectl get svc -n app
+
+
+31. CHECK APPLICATION DEPLOYMENTS
+
+kubectl get deployments -n app
+
+
+
+
+
+
+
+
+
+
+20. GET ARGOCD ADMIN PASSWORD
+
+kubectl get secret argocd-initial-admin-secret -n argocd -o jsonpath="{.data.password}" | base64 -d && echo
+
+
+========================
+ARGOCD APPLICATION
+========================
+
+REPOSITORY:
+
+https://github.com/gsharma1298/micro-service.git
+
+PATH:
+
+kubernetes-files
+
+REVISION:
+
+HEAD
+
+CLUSTER:
+
+https://kubernetes.default.svc
+
+NAMESPACE:
+
+app
+
+SYNC POLICY:
+
+Automatic
+
+
+
+
+
+
+========================
+JENKINS PIPELINES
+========================
+
+EKS TERRAFORM:
+
+Job Name:
+eks-terraform
+
+Script Path:
+eks-terraform/eks-jenkinsfile
+
+
+ECR TERRAFORM:
+
+Job Name:
+ecr-terraform
+
+Script Path:
+ecr-terraform/ecr-jenkinfile
+
+
+MICROSERVICES:
+
+emailservice
+checkoutservice
+recommendationservice
+frontend
+paymentservice
+productcatalogservice
+cartservice
+loadgenerator
+currencyservice
+shippingservice
+adservice
+
+
+========================
+ROUTE 53 / HTTPS
+========================
+
+DOMAIN:
+
+hr82.online
+
+CHECK DNS:
+
+curl -v http://hr82.online
+
+
+CHECK APPLICATION:
+
+
+
+http://hr82.online
+
+
+
+
+check eks cluster in config
+
+kubectl config get-contexts
+
+
+
+
+add eks cluster in config
+
+aws eks update-kubeconfig --region=ap-south-1 --name=project-eks
+
+aws eks update-kubeconfig --region=us-east-1 --name=project-eks-us-east-1
+
+
+
+kubectl config current-context
+
+kubectl config use-context arn:aws:eks:ap-south-1:623577189957:cluster/project-eks
+
+
+
+install argocd CLI
+
+curl -sSL -o /tmp/argocd https://github.com/argoproj/argo-cd/releases/latest/download/argocd-linux-amd64
+
+sudo install -m 555 /tmp/argocd /usr/local/bin/argocd
+
+argocd version --client
+
+
+
+
+now login in argocd cli to add both cluster in argocd
+
+
+update your username and pass in the below command
+
+argocd login adbe053dd78ff41a39217e345f04fb14-189184928.ap-south-1.elb.amazonaws.com --username admin --password 'admin@123' --insecure
+
+
+
+get user info in argocd
+
+argocd account get-user-info
+
+
+now add cluster in argocd 
+
+argocd cluster add arn:aws:eks:us-east-1:623577189957:cluster/us-east-1
+
+argocd cluster add arn:aws:eks:ap-south-1:623577189957:cluster/project-eks
+
+argocd cluster list
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+.

@@ -1,0 +1,419 @@
+GIT ONE VIDEO FOR DEVOPS
+========================
+
+GIT DEVOPS FLOW
+===============
+
+Code → Git → Branch → Commit → Push → Pull Request
+→ Code Review → Merge → Jenkins → Build/Test
+→ Docker → ECR → Kubernetes/EKS → Argo CD → Production
+
+
+
+1. Git Introduction & Configuration
+2. Git Repository & Basic Workflow
+3. git init, status, add & commit
+4. Git Log & History
+5. Git Clone & Remote Repository
+6. Git Push, Pull & Fetch
+7. Git Branches & Checkout
+8. Git Merge & Conflict Resolution
+9. Git Rebase
+10. Git Stash
+11. Git Reset & Revert
+12. Git Diff & Show
+13. Git Tags & Releases
+14. Git .gitignore
+15. Git Cherry-Pick
+16. Git SSH & HTTPS Authentication
+17. Git Fork & Remote Branches
+18. Git Troubleshooting
+19. Git with Jenkins, Docker & Kubernetes
+20. Git with Argo CD & GitOps
+21. Important Git Commands for DevOps
+
+
+
+LET'S START GIT 🚀
+============================================================
+
+
+
+sudo apt install git -y
+
+
+TOPIC 1: GIT CONFIGURATION
+===========================
+
+Check Git version              | git --version
+Check Git config               | git config --list
+Set username                   | git config --global user.name "Your Name"
+Set email                      | git config --global user.email "you@example.com"
+Check username                 | git config user.name
+Check email                    | git config user.email
+Set default branch             | git config --global init.defaultBranch main
+
+
+TOPIC 2: GIT REPOSITORY
+=======================
+
+Create directory               | mkdir project
+Go inside directory            | cd project
+Initialize Git repository      | git init
+Check repository status        | git status
+Show hidden files              | ls -la
+Remove Git repository          | rm -rf .git
+
+
+TOPIC 3: GIT BASIC WORKFLOW
+===========================
+
+Initialize repository          | git init
+Check status                   | git status
+Stage file                     | git add file.txt
+Stage all files                | git add .
+Commit changes                 | git commit -m "Initial commit"
+Add remote                     | git remote add origin <URL>
+Push code                      | git push -u origin main
+
+
+TOPIC 4: GIT FILE OPERATIONS
+============================
+
+Create file                    | touch file.txt
+Add file                       | git add file.txt
+Add all files                  | git add .
+Remove file                    | git rm file.txt
+Rename file                    | git mv old.txt new.txt
+Check status                   | git status
+
+
+TOPIC 5: GIT STAGING
+====================
+
+Stage file                     | git add file.txt
+Stage all files                | git add .
+Unstage file                   | git restore --staged file.txt
+Unstage all files              | git restore --staged .
+View unstaged changes           | git diff
+View staged changes             | git diff --cached
+
+
+TOPIC 6: GIT COMMIT
+===================
+
+Create commit                  | git commit -m "message"
+Commit all tracked changes     | git commit -am "message"
+View commits                   | git log
+One-line history               | git log --oneline
+Last 5 commits                 | git log -5
+Show commit                    | git show <commit-id>
+Show commit graph              | git log --oneline --graph --all
+
+
+TOPIC 7: GIT BRANCH
+===================
+
+List branches                  | git branch
+List remote branches           | git branch -r
+List all branches              | git branch -a
+Create branch                  | git branch feature
+Switch branch                  | git switch feature
+Create and switch branch       | git switch -c feature
+Delete branch                  | git branch -d feature
+Force delete branch            | git branch -D feature
+Rename branch                  | git branch -m new-name
+
+
+TOPIC 8: GIT CHECKOUT
+=====================
+
+Switch branch                  | git checkout main
+Create branch                  | git checkout -b feature
+Restore file                   | git restore file.txt
+Restore file from commit       | git restore --source <commit> file.txt
+
+
+TOPIC 9: GIT REMOTE
+===================
+
+Add remote                    | git remote add origin <URL>
+View remote                   | git remote -v
+Remote details                | git remote show origin
+Change remote URL             | git remote set-url origin <URL>
+Rename remote                 | git remote rename origin upstream
+Remove remote                 | git remote remove origin
+
+
+TOPIC 10: GIT PUSH
+==================
+
+Push current branch           | git push
+Push main                     | git push origin main
+First push                    | git push -u origin main
+Push feature branch           | git push -u origin feature
+Push all branches             | git push --all
+Delete remote branch          | git push origin --delete feature
+Force push                    | git push --force
+Safe force push               | git push --force-with-lease
+
+
+TOPIC 11: GIT FETCH
+===================
+
+Fetch remote changes           | git fetch
+Fetch origin                   | git fetch origin
+Fetch all remotes              | git fetch --all
+Remove deleted branches        | git fetch --prune
+
+
+TOPIC 12: GIT PULL
+==================
+
+Pull latest changes             | git pull
+Pull from main                 | git pull origin main
+Pull using rebase              | git pull --rebase
+
+
+TOPIC 13: GIT MERGE
+===================
+
+Merge branch                   | git merge feature
+Abort merge                    | git merge --abort
+Continue merge                 | git merge --continue
+
+
+TOPIC 14: MERGE CONFLICT
+========================
+
+Check conflict                 | git status
+After resolving conflict       | git add .
+Complete merge                 | git commit
+Abort merge                    | git merge --abort
+
+
+TOPIC 15: GIT REBASE
+====================
+
+Rebase branch                  | git rebase main
+Interactive rebase             | git rebase -i HEAD~3
+Continue rebase                | git rebase --continue
+Abort rebase                   | git rebase --abort
+Skip commit                    | git rebase --skip
+
+
+TOPIC 16: GIT STASH
+===================
+
+Save changes                   | git stash
+Save with message              | git stash push -m "WIP"
+List stashes                   | git stash list
+Apply stash                    | git stash apply
+Apply and remove stash         | git stash pop
+Delete stash                   | git stash drop stash@{0}
+Delete all stashes             | git stash clear
+
+
+TOPIC 17: GIT RESET
+===================
+
+Unstage file                   | git reset file.txt
+Reset previous commit          | git reset HEAD~1
+Soft reset                     | git reset --soft HEAD~1
+Mixed reset                    | git reset --mixed HEAD~1
+Hard reset                     | git reset --hard HEAD~1
+
+
+TOPIC 18: GIT REVERT
+====================
+
+Revert commit                  | git revert <commit-id>
+Revert latest commit           | git revert HEAD
+Continue revert                | git revert --continue
+Abort revert                   | git revert --abort
+
+
+TOPIC 19: GIT TAG
+=================
+
+List tags                      | git tag
+Create tag                     | git tag v1.0.0
+Create annotated tag           | git tag -a v1.0.0 -m "Release"
+Show tag                       | git show v1.0.0
+Push tag                       | git push origin v1.0.0
+Push all tags                  | git push origin --tags
+Delete local tag               | git tag -d v1.0.0
+Delete remote tag              | git push origin --delete v1.0.0
+
+
+TOPIC 20: GITIGNORE
+===================
+
+Create Gitignore               | touch .gitignore
+Ignore log files               | *.log
+Ignore environment file        | .env
+Ignore Node modules            | node_modules/
+Ignore Terraform state         | *.tfstate
+Remove tracked file            | git rm --cached .env
+
+
+TOPIC 21: GIT DIFF
+==================
+
+View changes                   | git diff
+View staged changes             | git diff --cached
+Compare branches              | git diff main feature
+Compare commits               | git diff HEAD~1 HEAD
+
+
+TOPIC 22: GIT CHERRY-PICK
+=========================
+
+Apply commit                   | git cherry-pick <commit-id>
+Continue cherry-pick           | git cherry-pick --continue
+Abort cherry-pick              | git cherry-pick --abort
+
+
+TOPIC 23: GIT BLAME
+===================
+
+Check who changed lines        | git blame file.txt
+Check specific lines           | git blame -L 10,20 file.txt
+
+
+TOPIC 24: GIT CLEAN
+===================
+
+Preview untracked files        | git clean -n
+Delete untracked files         | git clean -f
+Delete untracked directories   | git clean -fd
+
+
+TOPIC 25: GIT CLONE
+===================
+
+Clone repository               | git clone <URL>
+Clone specific branch          | git clone -b develop <URL>
+Shallow clone                  | git clone --depth 1 <URL>
+
+
+TOPIC 26: GIT REFLOG
+====================
+
+View reflog                    | git reflog
+Find lost commit               | git reflog
+Recover commit                 | git switch -c recovery <commit-id>
+
+
+TOPIC 27: GIT SSH
+=================
+
+Generate SSH key               | ssh-keygen -t ed25519 -C "email@example.com"
+Start SSH agent                | eval "$(ssh-agent -s)"
+Add SSH key                   | ssh-add ~/.ssh/id_ed25519
+Show public key               | cat ~/.ssh/id_ed25519.pub
+Test GitHub SSH               | ssh -T git@github.com
+Clone using SSH               | git clone git@github.com:user/repo.git
+
+
+
+
+TOPIC 28: GIT WITH JENKINS
+==========================
+
+Clone repository               | git clone <URL>
+Checkout branch                | git checkout main
+Pull latest code               | git pull origin main
+View latest commits            | git log --oneline -5
+
+
+TOPIC 29: GIT WITH DOCKER
+=========================
+
+Clone application              | git clone <URL>
+Build Docker image             | docker build -t app:1.0 .
+Tag Docker image               | docker tag app:1.0 <registry>/app:1.0
+Push Docker image              | docker push <registry>/app:1.0
+
+
+TOPIC 30: GIT WITH KUBERNETES
+=============================
+
+Store Dockerfile               | Dockerfile
+Store Kubernetes deployment    | deployment.yaml
+Store Kubernetes service       | service.yaml
+Store Ingress configuration    | ingress.yaml
+Store ConfigMap                | configmap.yaml
+Store Helm charts              | helm/
+Store Terraform code           | terraform/
+Store Jenkins pipeline         | Jenkinsfile
+
+
+TOPIC 31: GIT WITH ARGO CD / GITOPS
+===================================
+
+Developer pushes code          | git push
+Git repository                 | Source of Truth
+Argo CD                        | GitOps Controller
+Argo CD detects changes        | Automatic Sync
+Kubernetes                     | Desired State
+
+
+TOPIC 32: GIT BRANCHING STRATEGIES
+==================================
+
+Feature Branch                 | feature/login
+Git Flow                       | main/develop/feature/release
+Trunk Based Development        | main + short-lived branches
+
+
+TOPIC 33: MOST IMPORTANT DEVOPS GIT COMMANDS
+============================================
+
+Clone repository               | git clone <URL>
+Initialize repository          | git init
+Check status                   | git status
+Stage changes                  | git add .
+Commit changes                 | git commit -m "message"
+View history                   | git log --oneline
+Create branch                  | git switch -c feature
+Switch branch                  | git switch main
+Merge branch                   | git merge feature
+Rebase branch                  | git rebase main
+Save changes                   | git stash
+Restore stash                  | git stash pop
+Fetch changes                  | git fetch
+Pull changes                   | git pull
+Push changes                   | git push
+Check remote                   | git remote -v
+View differences               | git diff
+Create release tag             | git tag v1.0.0
+Apply specific commit          | git cherry-pick <commit>
+Recover lost work              | git reflog
+Find line author               | git blame file.txt
+
+
+============================================================
+FINAL GIT DEVOPS WORKFLOW
+============================================================
+
+git clone <URL>
+git switch -c feature
+git status
+git add .
+git commit -m "Add feature"
+git push -u origin feature
+Pull Request
+Code Review
+Merge
+Jenkins CI/CD
+Build
+Test
+SonarQube
+Trivy
+Docker Build
+Docker Push
+ECR
+Kubernetes / EKS
+Argo CD / GitOps
+Production

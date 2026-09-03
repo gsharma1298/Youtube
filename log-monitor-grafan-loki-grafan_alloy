@@ -1,0 +1,536 @@
+Centralized Log Monitoring with Grafana Alloy, Loki & Grafana
+
+
+- Loki → logs: application logs, system logs, container logs.
+- Grafana → visualization: dashboards that combine Prometheus metrics and Loki logs.
+- Promtail / Grafana Alloy → log collection: reads logs and sends them to Loki.
+
+Typical architecture
+ 
+	             Ubuntu
+ 
+          ┌───────┴─────────┐
+          │                   	│
+       /var/log            Application
+          │                   	│
+          └─ ─────┬─────────┘
+                    ▼
+              Grafana Alloy
+                    │
+                    │ HTTP
+                    ▼
+                  Loki
+                Port 3100
+                    │
+                    ▼
+                Grafana
+                Port 3000
+                    │
+                    ▼
+             Explore → Logs
+
+
+
+Ports
+Component	Port
+Grafana		3000
+Loki		3100
+Alloy		12345
+
+
+
+Architecture
+Ubuntu Server
+     │
+     │ /var/log/*.log
+     ▼
+Grafana Alloy
+     │
+     │ Log data
+     ▼
+Loki
+     │
+     ▼
+Grafana
+     │
+     └── Explore → Logs
+
+
+
+
+
+1. Update Ubuntu
+sudo apt update
+sudo apt upgrade -y
+
+Install required packages:
+sudo apt install -y curl wget unzip gnupg apt-transport-https
+
+2. Install Loki
+Create Loki user:
+sudo useradd --system --no-create-home --shell /bin/false loki
+
+Create directories:
+sudo mkdir -p /etc/loki
+sudo mkdir -p /var/lib/loki
+sudo mkdir -p /var/lib/loki/chunks
+sudo mkdir -p /var/lib/loki/compactor
+
+Download Loki:
+cd /tmp
+wget https://github.com/grafana/loki/releases/latest/download/loki-linux-amd64.zip
+
+Extract:
+unzip loki-linux-amd64.zip
+
+Install:
+chmod +x loki-linux-amd64
+sudo mv loki-linux-amd64 /usr/local/bin/loki
+
+Verify:
+loki --version
+
+3. Configure Loki
+sudo nano /etc/loki/loki-config.yaml
+
+
+Paste below text:
+
+auth_enabled: false
+
+server:
+  http_listen_port: 3100
+  grpc_listen_port: 9096
+
+common:
+  path_prefix: /var/lib/loki
+  replication_factor: 1
+
+  ring:
+    kvstore:
+      store: inmemory
+
+schema_config:
+  configs:
+    - from: 2024-01-01
+      store: tsdb
+      object_store: filesystem
+      schema: v13
+
+      index:
+        prefix: index_
+        period: 24h
+
+storage_config:
+  filesystem:
+    directory: /var/lib/loki/chunks
+
+limits_config:
+  allow_structured_metadata: true
+  volume_enabled: true
+
+compactor:
+  working_directory: /var/lib/loki/compactor
+
+
+
+Set permissions:
+sudo chown -R loki:loki /etc/loki
+sudo chown -R loki:loki /var/lib/loki
+
+
+4. Create Loki service
+sudo nano /etc/systemd/system/loki.service
+
+
+Paste:
+
+[Unit]
+Description=Loki Log Aggregator
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+User=loki
+Group=loki
+Type=simple
+
+ExecStart=/usr/local/bin/loki \
+  -config.file=/etc/loki/loki-config.yaml
+
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target
+
+
+
+
+Start Loki:
+sudo systemctl daemon-reload
+sudo systemctl enable --now loki
+sudo systemctl status loki
+
+Test:
+curl http://localhost:3100/ready
+Expected:
+ready
+
+
+
+5. Install Grafana Alloy
+
+Add Grafana repository:
+
+
+sudo mkdir -p /etc/apt/keyrings
+
+wget -q -O - https://apt.grafana.com/gpg.key | \
+  gpg --dearmor | \
+  sudo tee /etc/apt/keyrings/grafana.gpg > /dev/null
+
+echo "deb [signed-by=/etc/apt/keyrings/grafana.gpg] https://apt.grafana.com stable main" | \
+  sudo tee /etc/apt/sources.list.d/grafana.list
+
+
+Update:
+sudo apt update
+
+
+Install Alloy:
+sudo apt install -y alloy
+
+Verify:
+alloy --version
+
+
+6. Configure Alloy
+
+Backup existing configuration:
+
+sudo cp /etc/alloy/config.alloy /etc/alloy/config.alloy.bak
+
+Open configuration:
+sudo nano /etc/alloy/config.alloy
+
+Use:
+
+
+local.file_match "varlogs" {
+  path_targets = [
+    {
+      __path__ = "/var/log/*.log",
+      job      = "varlogs",
+    },
+  ]
+}
+
+loki.source.file "varlogs" {
+  targets    = local.file_match.varlogs.targets
+  forward_to = [loki.write.local.receiver]
+}
+
+loki.write "local" {
+  endpoint {
+    url = "http://localhost:3100/loki/api/v1/push"
+  }
+}
+
+
+
+Save the file.
+
+Format it:
+sudo alloy fmt /etc/alloy/config.alloy
+
+Restart Alloy:
+sudo systemctl restart alloy
+sudo systemctl enable alloy
+sudo systemctl status alloy
+
+
+
+7. Give Alloy access to logs
+Add Alloy to the adm group:
+
+sudo usermod -aG adm alloy
+
+Restart:
+sudo systemctl restart alloy
+
+
+Check:
+id alloy
+You should see adm in the groups.
+
+
+8. Check Alloy logs
+
+sudo journalctl -u alloy -f
+
+Look for errors.
+You can also check Alloy's HTTP endpoint:
+curl http://localhost:12345/-/ready
+
+
+
+clear
+
+
+9.Install Grafana
+
+Install prerequisites:
+
+sudo apt-get install -y apt-transport-https wget gnupg
+
+Create keyring:
+sudo mkdir -p /etc/apt/keyrings
+
+Download Grafana GPG key:
+sudo wget -O /etc/apt/keyrings/grafana.asc https://apt.grafana.com/gpg-full.key
+
+Set permissions:
+sudo chmod 644 /etc/apt/keyrings/grafana.asc
+
+Add repository:
+echo "deb [signed-by=/etc/apt/keyrings/grafana.asc] https://apt.grafana.com stable main" | sudo tee /etc/apt/sources.list.d/grafana.list
+
+Update:
+sudo apt-get update
+
+Install Grafana OSS:
+sudo apt-get install -y grafana
+
+Step 8 — Start Grafana
+sudo systemctl daemon-reload
+sudo systemctl enable grafana-server
+sudo systemctl start grafana-server
+sudo systemctl status grafana-server
+
+
+
+
+
+
+
+
+
+
+11. Add Loki to Grafana
+In Grafana:
+Connections → Data sources → Add data source
+
+
+Select:
+Loki
+
+
+For URL enter:
+http://localhost:3100
+
+Click:
+Save & test
+
+You should get a successful connection.
+
+
+
+12. View logs
+
+Go to:
+Explore
+
+Select:
+Loki
+
+
+
+All Recent Logs
+Query:
+{job="varlogs"}
+
+
+Run:
+{job="varlogs"}
+You should see your Ubuntu logs.
+
+
+For errors:
+{job="varlogs"} |= "error"
+
+
+For failed messages:
+{job="varlogs"} |= "failed"
+
+
+13. Generate a test log
+
+
+Run:
+
+
+echo "Loki test log from Ubuntu" | sudo tee -a /var/log/loki-test.log
+
+
+Then in Grafana Explore:
+{job="varlogs"} |= "Loki test"
+
+
+
+create your Loki Log Monitoring Dashboard from this screen.
+
+Step 1 — Create dashboard
+Click the blue + Create dashboard button in the middle.
+Then select Add visualization.
+
+Step 2 — Select Loki
+Grafana will ask you to select a data source.
+
+Choose:
+Loki
+You should then see the panel editor.
+
+Step 3 — Create your first panel: Total Logs
+
+In the query area, enter:
+sum(count_over_time({job="varlogs"}[$__interval]))
+On the right side, change the visualization to:
+Stat
+
+Set the panel title to:
+Total Logs
+Then click Apply.
+
+Step 4 — Add Error Logs panel
+Click:
+Add → Visualization
+
+Select Loki and use:
+sum(count_over_time({job="varlogs"} |= "error" [$__interval]))
+Visualization:
+
+Stat
+Title:
+Errors
+Click Apply.
+
+Step 5 — Add Warning Logs
+Add another visualization:
+sum(count_over_time({job="varlogs"} |= "warn" [$__interval]))
+Visualization:
+Stat
+Title:
+Warnings
+
+Step 6 — Add Log Volume
+Add another visualization.
+
+Query:
+sum(count_over_time({job="varlogs"}[$__interval]))
+Choose:
+Time series
+Title:
+Log Volume
+This will show how the number of logs changes over time.
+
+
+Step 7 — Add Recent Logs
+Add another visualization.
+Query:
+{job="varlogs"}
+Choose:
+Logs
+Title:
+Recent Logs
+
+This is the important panel where you'll see the actual Ubuntu log messages.
+
+Your dashboard should eventually look roughly like this
+┌──────────────────────────────────────────────────────────┐
+│              LOKI LOG MONITORING                         │
+├──────────────┬──────────────┬──────────────┬─────────────┤
+│ Total Logs   │ Errors       │ Warnings     │ Log Rate    │
+│    12,450    │     32       │     108      │ 15/s        │
+├──────────────┴──────────────┴──────────────┴─────────────┤
+│                    LOG VOLUME                            │
+│       ╭──╮       ╭──────╮                                │
+│   ╭───╯  ╰──╮ ╭──╯      ╰───╮                            │
+├──────────────────────────────┬───────────────────────────┤
+│        ERROR LOGS             │      WARNING LOGS        │
+│ ERROR database failed         │ WARN retry connection    │
+│ ERROR timeout                 │ WARN disk usage          │
+├──────────────────────────────┴───────────────────────────┤
+│                    RECENT LOGS                            │
+│ INFO  Application started                                 │
+│ INFO  Request received                                    │
+│ WARN  Connection retry                                    │
+│ ERROR Database connection failed                          │
+└──────────────────────────────────────────────────────────┘
+
+
+
+
+
+
+
+
+
+
+
+You should see:
+Loki test log from Ubuntu
+Final setup
+                  Ubuntu
+                    │
+          ┌─────────┴─────────┐
+          │                   │
+       /var/log            Application
+          │                   │
+          └─────────┬─────────┘
+                    ▼
+              Grafana Alloy
+                    │
+                    │ HTTP
+                    ▼
+                  Loki
+                Port 3100
+                    │
+                    ▼
+                Grafana
+                Port 3000
+                    │
+                    ▼
+             Explore → Logs
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+.

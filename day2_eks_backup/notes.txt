@@ -1,0 +1,319 @@
+VELERO BACKUP SETUP FOR AMAZON EKS USING S3 + IRSA
+==================================================
+
+
+
+
+first create the eks using terraform
+
+terraform init
+terraform plan 
+terraform apply --auto-approve
+
+2. SET AWS VARIABLES
+---------------------
+
+export CLUSTER_NAME=eks
+export REGION=ap-south-1
+export BUCKET=gsharma1298
+
+
+3. CONNECT KUBECTL TO EKS
+--------------------------
+
+aws eks update-kubeconfig --name "$CLUSTER_NAME" --region "$REGION"
+
+kubectl get nodes
+
+
+
+
+1. INSTALL VELERO CLI ON UBUNTU
+--------------------------------
+
+VELERO_VERSION=v1.18.2
+
+curl -LO https://github.com/velero-io/velero/releases/download/${VELERO_VERSION}/velero-${VELERO_VERSION}-linux-amd64.tar.gz
+
+tar -xzf velero-${VELERO_VERSION}-linux-amd64.tar.gz
+
+sudo install velero-${VELERO_VERSION}-linux-amd64/velero /usr/local/bin/velero
+
+velero version --client-only
+
+
+
+
+4. CREATE S3 BUCKET AND ENABLE VERSIONING
+------------------------------------------
+
+aws s3api create-bucket \
+  --bucket "$BUCKET" \
+  --region "$REGION" \
+  --create-bucket-configuration LocationConstraint="$REGION"
+
+
+Enable S3 versioning:
+
+aws s3api put-bucket-versioning \
+  --bucket "$BUCKET" \
+  --versioning-configuration Status=Enabled
+
+check s3 bucket
+
+aws s3 ls
+
+
+5. CREATE OR VERIFY THE EKS OIDC PROVIDER
+------------------------------------------
+
+eksctl utils associate-iam-oidc-provider --cluster "$CLUSTER_NAME" --region "$REGION" --approve
+
+
+
+
+[ Pod ]
+  │
+  ▼ (Uses)
+[ ServiceAccount ] ──(Annotated with: ://amazonaws.com)
+  │
+  ▼ (Exchanges Token)
+[ OIDC Provider ] ──(Validates Kubernetes JWT)
+  │
+  ▼ (Assumes)
+[ IAM Role ] ──(Trust policy allows OIDC assume action)
+  │
+  ▼ (Evaluates)
+[ IAM Policy ] ──(Grants actual permissions to cloud resources)
+
+
+
+
+
+6. IAM POLICY FOR VELERO
+------------------------
+
+Create a file named velero-policy.json:
+
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Action": [
+        "ec2:DescribeVolumes",
+        "ec2:DescribeSnapshots",
+        "ec2:CreateTags",
+        "ec2:CreateVolume",
+        "ec2:CreateSnapshot",
+        "ec2:DeleteSnapshot"
+      ],
+      "Resource": "*"
+    },
+    {
+      "Effect": "Allow",
+      "Action": [
+        "s3:GetObject",
+        "s3:DeleteObject",
+        "s3:PutObject",
+        "s3:AbortMultipartUpload",
+        "s3:ListMultipartUploadParts"
+      ],
+      "Resource": "arn:aws:s3:::gsharma1298/*"
+    },
+    {
+      "Effect": "Allow",
+      "Action": [
+        "s3:ListBucket",
+        "s3:GetBucketLocation"
+      ],
+      "Resource": "arn:aws:s3:::gsharma1298"
+    }
+  ]
+}
+
+
+
+
+
+IMPORTANT:
+
+Replace BOTH occurrences of YOUR-BUCKET-NAME with your real S3 bucket name.
+Use /* for S3 objects. Do not use BUCKET-NAME*.
+
+
+
+Create the policy if it does not already exist:
+
+aws iam create-policy \
+  --policy-name gsharma1298-policy \
+  --policy-document file://velero-policy.json
+
+Attach the policy to the role:
+
+aws iam attach-role-policy \
+  --role-name gsharma1298-role \
+  --policy-arn arn:aws:iam::623577189957:policy/gsharma1298-policy
+
+Verify:
+
+aws iam list-attached-role-policies \
+  --role-name gsharma1298-role
+
+
+
+
+
+8. INSTALL VELERO
+-----------------
+
+velero install \
+  --provider aws \
+  --plugins velero/velero-plugin-for-aws:v1.14.0 \
+  --bucket "$BUCKET" \
+  --backup-location-config region="$REGION" \
+  --snapshot-location-config region="$REGION" \
+  --use-node-agent \
+  --no-secret \
+  --wait
+
+
+
+	kubectl get pods -n velero
+
+
+9. ADD IAM ROLE ANNOTATION TO VELERO SERVICE ACCOUNT
+------------------------------------------------------
+
+
+kubectl get serviceaccount -n velero
+kubectl edit serviceaccount -n velero
+
+
+add the below annotation in yml and restart/ rollout velereo
+
+annotations:
+  eks.amazonaws.com/role-arn: arn:aws:iam::623577189957:role/gsharma1298-role
+
+
+If you don't want edit do the cli annotation
+
+kubectl annotate serviceaccount velero -n velero \
+  eks.amazonaws.com/role-arn=arn:aws:iam::623577189957:role/govind-eks-velero-us-east-1 \
+  --overwrite
+
+
+kubectl rollout restart deployment/velero -n velero
+
+
+
+
+11. VERIFY S3 BACKUP LOCATION
+------------------------------
+
+velero backup-location get
+
+
+IF THE S3 BUCKET OR REGION IS WRONG
+
+kubectl get backupstoragelocation default -n velero -o yaml
+
+Edit it:
+
+kubectl edit backupstoragelocation default -n velero
+
+
+kubectl rollout restart deployment/velero -n velero
+
+Verify again:
+
+velero backup-location get
+
+
+
+
+
+Create deployment in default namespace
+
+kubectl create deployment nginx --image=nginx --replicas=8
+
+kubectl get pods
+
+
+CREATE BACKUP OF DEFAULT NAMESPACE ONLY
+--------------------------------------------
+
+velero backup create first-backup --include-namespaces default --wait
+
+
+velero backup get
+
+velero backup describe first-backup --details
+
+velero backup logs first-backup
+
+
+
+
+
+
+delete the deployment 
+
+kubectl get deployment
+kubectl get pods
+
+kubectl delete deployment nginx
+
+
+
+
+14. RESTORE first-backup
+------------------------
+
+Restore into the original default namespace:
+
+velero restore create restore-first-backup --from-backup first-backup --wait
+
+
+velero restore get
+
+velero restore describe restore-first-backup --details
+
+NOTE:
+If resources already exist in the default namespace, Velero can skip them or
+report conflicts.
+
+For a safer test restore into a new namespace:
+
+velero restore create restore-first-backup-test --from-backup first-backup --namespace-mappings default:test --wait
+
+
+
+
+
+Check restored resources:
+
+kubectl get all -n restore-test
+
+
+15. DELETE A TEST BACKUP
+------------------------
+
+velero backup delete first-backup --confirm
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+.

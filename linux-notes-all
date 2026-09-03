@@ -1,0 +1,376 @@
+
+Linux one video for Devops
+
+Topics
+ 
+01. File & Directory Management
+02. File Viewing / Editing
+03. Process Management
+04. Disk Management
+05. Networking
+06. Services
+07. Log Management
+08. User Management
+09. Group Management
+10. File Permissions
+11. Searching
+12. CPU & Memory
+13. SSH / Remote Access
+14. Package Management
+15. Firewall & Security
+16. Environment Variables / PATH
+17. Archive & Compression
+18. Scheduling / Cron
+19. System Information
+20. Linux Log File Locations
+21. Most Important DevOps Commands
+
+
+
+
+
+
+
+============================================================
+TOPIC 1: FILE & DIRECTORY MANAGEMENT
+============================================================
+
+WINDOWS REFERENCE                  | LINUX COMMAND
+------------------------------------------------------------
+Open / go to a folder              | cd /var/log
+Go one folder back                 | cd ..
+Go to root directory               | cd /
+Go to home directory               | cd ~
+See files and folders              | ls
+See detailed files                 | ls -l
+See hidden files                   | ls -la
+Create a folder                    | mkdir test
+Create a new file                  | touch file.txt
+Copy a file                        | cp file1.txt file2.txt
+Move a file                        | mv file.txt /tmp/
+Rename a file                      | mv old.txt new.txt
+Delete a file                      | rm file.txt
+Delete a folder                    | rm -r folder
+
+
+============================================================
+TOPIC 2: FILE VIEWING / EDITING
+============================================================
+
+WINDOWS REFERENCE                  | LINUX COMMAND
+------------------------------------------------------------
+Open / view a file                 | cat file.txt
+View large file                    | less file.txt
+View first 10 lines                | head file.txt
+View last 10 lines                 | tail file.txt
+Watch file continuously            | tail -f app.log
+Edit a file                        | nano file.txt
+Edit a file                        | vi file.txt
+Search inside a file               | grep "error" file.txt
+Search recursively                 | grep -r "error" /var/log
+
+
+============================================================
+TOPIC 3: PROCESS MANAGEMENT
+============================================================
+
+WINDOWS REFERENCE                  | LINUX COMMAND
+------------------------------------------------------------
+Open Task Manager                  | top
+Advanced Task Manager              | htop
+List running processes             | ps -ef
+Find a process                     | ps -ef | grep nginx
+Kill a process                     | kill PID
+Force kill a process               | kill -9 PID
+Run process in background          | command &
+View background jobs               | jobs
+
+
+============================================================
+TOPIC 4: DISK MANAGEMENT
+============================================================
+
+WINDOWS REFERENCE                  | LINUX COMMAND
+------------------------------------------------------------
+Check disk space                   | df -h
+Check folder size                  | du -sh /var/log
+Find large files                   | du -ah / | sort -hr | head
+View disks and partitions          | lsblk
+Check inode usage                  | df -i
+Mount a disk                       | mount /dev/sdb1 /mnt
+Unmount a disk                     | umount /mnt
+
+
+============================================================
+TOPIC 5: NETWORKING
+============================================================
+
+WINDOWS REFERENCE                  | LINUX COMMAND
+------------------------------------------------------------
+Check IP address                   | ip a
+Check network interface            | ip link
+Test connectivity                 | ping 8.8.8.8
+Check routing table                | ip route
+Check open ports                   | ss -tuln
+Check active connections            | ss -tunap
+DNS lookup                         | nslookup google.com
+Trace network route                | traceroute google.com
+Check hostname                    | hostname
+
+
+============================================================
+TOPIC 6: SERVICES
+============================================================
+
+WINDOWS REFERENCE                  | LINUX COMMAND
+------------------------------------------------------------
+Check service status               | systemctl status nginx
+Start a service                    | systemctl start nginx
+Stop a service                     | systemctl stop nginx
+Restart a service                  | systemctl restart nginx
+Enable service at boot             | systemctl enable nginx
+Disable service at boot            | systemctl disable nginx
+List services                      | systemctl list-units --type=service
+
+
+============================================================
+TOPIC 7: LOG MANAGEMENT
+============================================================
+
+WINDOWS REFERENCE                  | LINUX COMMAND
+------------------------------------------------------------
+Open Event Viewer                 | journalctl
+Check service logs                 | journalctl -u nginx
+Check recent errors                | journalctl -xe
+Follow service logs live           | journalctl -u nginx -f
+View log directory                 | ls -l /var/log/
+View system logs                   | cat /var/log/syslog
+View authentication logs           | cat /var/log/auth.log
+Watch authentication logs          | tail -f /var/log/auth.log
+
+
+============================================================
+TOPIC 8: USER MANAGEMENT
+============================================================
+
+WINDOWS REFERENCE                  | LINUX COMMAND
+------------------------------------------------------------
+Check current user                | whoami
+See logged-in users                | who
+Detailed logged-in users           | w
+Create a user                      | useradd username
+Create user with home directory   | useradd -m username
+Change password                    | passwd username
+Delete a user                      | userdel username
+Check user information             | id username
+See all users                      | cat /etc/passwd
+
+
+============================================================
+TOPIC 9: GROUP MANAGEMENT
+============================================================
+
+WINDOWS REFERENCE                  | LINUX COMMAND
+------------------------------------------------------------
+Create a group                    | groupadd developers
+Add user to a group                | usermod -aG developers user
+Check user's groups               | groups username
+Delete a group                    | groupdel developers
+
+
+============================================================
+TOPIC 10: FILE PERMISSIONS
+============================================================
+
+WINDOWS REFERENCE                  | LINUX COMMAND
+------------------------------------------------------------
+Check file permissions             | ls -l file.txt
+Change permissions                 | chmod 755 file.txt
+Change owner                       | chown user file.txt
+Change group                       | chgrp developers file.txt
+Change owner + group               | chown user:group file.txt
+Change recursively                 | chmod -R 755 /folder
+
+
+============================================================
+TOPIC 11: SEARCHING
+============================================================
+
+WINDOWS REFERENCE                  | LINUX COMMAND
+------------------------------------------------------------
+Find a file                        | find / -name "file.txt"
+Find only files                    | find /var -type f
+Find only directories              | find /var -type d
+Find files > 1GB                   | find / -type f -size +1G
+Search text in file                | grep "error" app.log
+Search text recursively            | grep -r "error" /var/log
+
+
+============================================================
+TOPIC 12: CPU & MEMORY
+============================================================
+
+WINDOWS REFERENCE                  | LINUX COMMAND
+------------------------------------------------------------
+Open Task Manager                 | top
+Check RAM usage                    | free -h
+Check CPU information              | lscpu
+Check running processes            | ps aux
+Check system uptime                | uptime
+Check kernel version               | uname -r
+Check OS information              | cat /etc/os-release
+
+
+============================================================
+TOPIC 13: SSH / REMOTE ACCESS
+============================================================
+
+WINDOWS REFERENCE                  | LINUX COMMAND
+------------------------------------------------------------
+Remote login to server             | ssh user@server-ip
+SSH using private key              | ssh -i key.pem user@server-ip
+Copy file to server                | scp file.txt user@server:/tmp/
+Copy folder to server              | scp -r folder user@server:/tmp/
+Copy file from server              | scp user@server:/tmp/file.txt .
+
+
+============================================================
+TOPIC 14: PACKAGE MANAGEMENT
+============================================================
+
+WINDOWS REFERENCE                  | LINUX COMMAND
+------------------------------------------------------------
+Install software                   | sudo apt install nginx
+Update package list                | sudo apt update
+Upgrade packages                   | sudo apt upgrade
+Remove software                    | sudo apt remove nginx
+Search for software                | apt search nginx
+Show installed packages            | apt list --installed
+
+
+============================================================
+TOPIC 15: FIREWALL
+============================================================
+
+WINDOWS REFERENCE                  | LINUX COMMAND
+------------------------------------------------------------
+Check firewall status              | sudo ufw status
+Allow a port                       | sudo ufw allow 80
+Allow SSH                          | sudo ufw allow 22/tcp
+Delete firewall rule               | sudo ufw delete allow 80
+Enable firewall                    | sudo ufw enable
+Disable firewall                   | sudo ufw disable
+Allow HTTP                         | sudo ufw allow 80
+Allow HTTPS                        | sudo ufw allow 443
+Allow SSH                          | sudo ufw allow 22
+List firewall rules                | sudo ufw status numbered
+
+
+============================================================
+TOPIC 16: ENVIRONMENT VARIABLES / PATH
+============================================================
+
+WINDOWS REFERENCE                  | LINUX COMMAND
+------------------------------------------------------------
+View environment variables         | env
+Check PATH                         | echo $PATH
+Check current user                 | echo $USER
+Check home directory               | echo $HOME
+Set environment variable           | export APP_ENV=production
+Remove environment variable        | unset APP_ENV
+Check PATH                         | echo $PATH
+Check current shell                | echo $SHELL
+Check current user                 | echo $USER
+Check home directory               | echo $HOME
+Find command location              | which python
+Show environment variables         | printenv
+
+
+
+============================================================
+TOPIC 17: ARCHIVE & COMPRESSION
+============================================================
+
+WINDOWS REFERENCE                  | LINUX COMMAND
+------------------------------------------------------------
+Create TAR archive                 | tar -cvf backup.tar /data
+Extract TAR archive                | tar -xvf backup.tar
+Create TAR.GZ archive              | tar -czvf backup.tar.gz /data
+Extract TAR.GZ                     | tar -xzvf backup.tar.gz
+
+
+============================================================
+TOPIC 18: SCHEDULING
+============================================================
+
+WINDOWS REFERENCE                  | LINUX COMMAND
+------------------------------------------------------------
+Open Task Scheduler                | crontab -e
+List scheduled jobs                | crontab -l
+Edit scheduled jobs                | crontab -e
+
+Example:
+Run backup every day at 2 AM       | 0 2 * * * /backup.sh
+
+
+============================================================
+TOPIC 19: SYSTEM INFORMATION
+============================================================
+
+WINDOWS REFERENCE                  | LINUX COMMAND
+------------------------------------------------------------
+Check OS version                   | cat /etc/os-release
+Check kernel version               | uname -r
+Check hostname                     | hostname
+Check CPU                          | lscpu
+Check RAM                          | free -h
+Check uptime                       | uptime
+Check architecture                 | uname -m
+
+
+
+============================================================
+TOPIC 20: LINUX LOG FILES
+============================================================
+
+WINDOWS REFERENCE                  | LINUX LOCATION
+------------------------------------------------------------
+Event Viewer - System              | /var/log/syslog
+Event Viewer - Security            | /var/log/auth.log
+Application logs                   | /var/log/
+Web server logs                    | /var/log/nginx/
+SSH authentication logs            | /var/log/auth.log
+Package management logs            | /var/log/apt/
+Kernel/system messages             | journalctl
+
+IMPORTANT UBUNTU LOGS:
+
+System Log                        = /var/log/syslog
+Authentication Log                = /var/log/auth.log
+APT Log                           = /var/log/apt/
+Nginx Access Log                  = /var/log/nginx/access.log
+Nginx Error Log                   = /var/log/nginx/error.log
+
+
+============================================================
+TOPIC 21: MOST IMPORTANT DEVOPS COMMANDS
+============================================================
+
+WINDOWS REFERENCE                  | LINUX COMMAND
+------------------------------------------------------------
+Task Manager                      | top
+Event Viewer                      | journalctl
+Services                          | systemctl
+File Explorer                     | ls / cd
+Open file                         | cat
+Search                            | grep / find
+Disk Management                   | lsblk / df -h
+Network settings                  | ip a
+Open ports                        | ss -tuln
+Remote access                     | ssh
+Task Scheduler                    | crontab
+Firewall                          | ufw
+Install software                 | apt
+Kill process                      | kill
+File permissions                  | chmod / chown
+Live log monitoring               | tail -f

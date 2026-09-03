@@ -1,0 +1,767 @@
+UBUNTU + AWS + TERRAFORM + EKS + HELM MONITORING
+========================================================
+
++------+ → +------+ → +------+ → +----------------+ → +----------+ → +--------+ → +-----------+
+| EKS  |   | Node |   | Pods |   | Exporter + KSM |   | Prometheus|   | Grafana|   | Dashboard |
++------+   +------+   +------+   +----------------+   +----------+   +--------+   +-----------+
+
+Tools for MONITORING 
+========================================================
+
+Node Exporter     = Node CPU / Memory / Disk metrics
+Kube-State-Metrics = Pod / Deployment / Replica / Status metrics
+Prometheus        = Collects metrics
+Grafana           = Visualizes metrics
+
+
+PROJECT WORKFLOW
+================
+
+Ubuntu
+  |
+  +-- Terraform
+  +-- AWS CLI
+  +-- Git
+  +-- kubectl
+  +-- Helm
+  |
+  +-- EKS Cluster
+       |
+       +-- NGINX Deployment
+       +-- Prometheus
+       +-- Grafana
+       +-- Metrics Server
+
+
+========================================================
+1. UPDATE UBUNTU SYSTEM
+========================================================
+
+sudo apt update && sudo apt upgrade -y
+
+
+========================================================
+2. INSTALL REQUIRED PACKAGES
+========================================================
+
+sudo apt install -y gnupg software-properties-common wget unzip curl
+
+
+========================================================
+3. INSTALL TERRAFORM
+========================================================
+
+wget -O- https://apt.releases.hashicorp.com/gpg | \
+sudo gpg --dearmor -o /usr/share/keyrings/hashicorp-archive-keyring.gpg
+
+echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/hashicorp-archive-keyring.gpg] https://apt.releases.hashicorp.com $(grep -oP '(?<=UBUNTU_CODENAME=).*' /etc/os-release || lsb_release -cs) main" | \
+sudo tee /etc/apt/sources.list.d/hashicorp.list
+
+sudo apt update
+
+sudo apt install -y terraform
+
+
+VERIFY TERRAFORM
+----------------
+
+terraform --version
+
+
+========================================================
+4. INSTALL AWS CLI
+========================================================
+
+curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+
+unzip awscliv2.zip
+
+sudo ./aws/install
+
+
+VERIFY AWS CLI
+--------------
+
+aws --version
+
+
+CONFIGURE AWS CLI
+-----------------
+
+aws configure
+
+AWS Access Key ID:     <YOUR_ACCESS_KEY>
+AWS Secret Access Key: <YOUR_SECRET_KEY>
+Default region name:   us-east-1
+Default output format: json
+
+
+TEST AWS CLI
+------------
+
+aws sts get-caller-identity
+
+
+CHECK AWS REGION
+----------------
+
+aws configure get region
+
+
+VERIFY TERRAFORM + AWS CLI
+--------------------------
+
+terraform --version && aws --version
+
+
+========================================================
+5. INSTALL GIT
+========================================================
+
+sudo apt install git -y
+
+
+CLONE PROJECT
+-------------
+
+git clone https://github.com/gsharma1298/Youtube.git
+
+
+GO TO EKS MONITORING PROJECT
+----------------------------
+
+cd Youtube/eks_monitoring
+
+
+========================================================
+6. TERRAFORM - CREATE EKS INFRASTRUCTURE
+========================================================
+
+terraform init
+
+terraform plan
+
+terraform apply --auto-approve
+
+
+========================================================
+7. INSTALL KUBECTL
+========================================================
+
+sudo apt update
+
+sudo apt install -y curl
+
+curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
+
+sudo install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl
+
+
+VERIFY KUBECTL
+--------------
+
+kubectl version --client
+
+
+OPTIONAL SHORT COMMAND
+----------------------
+
+alias k=kubectl
+
+
+MAKE ALIAS PERMANENT
+--------------------
+
+echo 'alias k=kubectl' >> ~/.bashrc
+
+source ~/.bashrc
+
+
+========================================================
+8. CONNECT TO EKS CLUSTER
+========================================================
+
+aws eks update-kubeconfig --region us-east-1 --name us-eks
+
+
+CHECK CURRENT CONTEXT
+--------------------
+
+kubectl config current-context
+
+
+========================================================
+9. CHECK EKS CLUSTER
+========================================================
+
+kubectl get nodes
+
+kubectl get nodes -o wide
+
+kubectl get deployment
+
+kubectl get pods
+
+kubectl get pods -n kube-system
+
+
+========================================================
+10. CREATE NGINX DEPLOYMENT
+========================================================
+
+kubectl create deployment nginx --image=nginx --replicas=5
+
+
+CHECK PODS
+----------
+
+kubectl get pods
+
+
+CHECK DEPLOYMENT
+----------------
+
+kubectl get deployment nginx
+
+
+WATCH PODS
+----------
+
+kubectl get pods -w
+
+
+========================================================
+11. INSTALL HELM
+========================================================
+
+curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
+
+
+VERIFY HELM
+-----------
+
+helm version
+
+
+========================================================
+12. ADD PROMETHEUS HELM REPOSITORY
+========================================================
+
+helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
+
+
+UPDATE HELM REPOSITORIES
+------------------------
+
+helm repo update
+
+
+VERIFY HELM REPOSITORIES
+------------------------
+
+helm repo list
+
+
+========================================================
+13. CREATE MONITORING NAMESPACE
+========================================================
+
+kubectl create namespace monitoring
+
+
+VERIFY NAMESPACE
+----------------
+
+kubectl get namespace monitoring
+
+
+========================================================
+14. INSTALL PROMETHEUS + GRAFANA
+========================================================
+
+helm install monitoring prometheus-community/kube-prometheus-stack \
+-n monitoring
+
+
+========================================================
+15. CHECK MONITORING INSTALLATION
+========================================================
+
+helm list -n monitoring
+
+kubectl get pods -n monitoring
+
+kubectl get svc -n monitoring
+
+
+WATCH MONITORING PODS
+---------------------
+
+kubectl get pods -n monitoring -w
+
+
+========================================================
+16. HELM RELEASE INFORMATION
+========================================================
+
+GET INSTALLATION NOTES:
+
+helm get notes monitoring -n monitoring
+
+
+GET USER VALUES:
+
+helm get values monitoring -n monitoring
+
+
+GET ALL VALUES:
+
+helm get values monitoring -n monitoring --all
+
+
+GET COMPLETE RELEASE INFORMATION:
+
+helm get all monitoring -n monitoring
+
+
+GET RELEASE HISTORY:
+
+helm history monitoring -n monitoring
+
+
+========================================================
+17. GRAFANA SERVICE
+========================================================
+
+kubectl get svc monitoring-grafana -n monitoring
+
+
+EDIT GRAFANA SERVICE: (NodePort or LoadBalancer)
+
+kubectl edit svc monitoring-grafana -n monitoring
+
+
+CHECK SERVICE AGAIN:
+
+kubectl get svc monitoring-grafana -n monitoring
+
+
+========================================================
+18. GET WORKER NODE PUBLIC IP
+========================================================
+
+kubectl get nodes -o wide
+
+
+LOOK FOR:
+
+PUBLIC-IP
+
+
+GRAFANA NODEPORT URL:
+
+http://<NODE-PUBLIC-IP>:<NODE-PORT>
+
+
+EXAMPLE:
+
+http://13.xxx.xxx.xxx:31460
+
+
+NOTE:
+If using NodePort, the required port must be allowed
+in the EC2 worker-node Security Group.
+
+
+========================================================
+19. GET GRAFANA ADMIN PASSWORD
+========================================================
+
+kubectl get secret monitoring-grafana \
+-n monitoring \
+-o jsonpath="{.data.admin-password}" | base64 -d
+
+echo
+
+
+GRAFANA USERNAME:
+
+admin
+
+
+========================================================
+20. PROMETHEUS URL FOR GRAFANA DATA SOURCE
+========================================================
+
+PROMETHEUS SERVICE:
+
+monitoring-kube-prometheus-prometheus
+
+
+PROMETHEUS URL:
+
+http://monitoring-kube-prometheus-prometheus:9090
+
+
+FULL DNS:
+
+http://monitoring-kube-prometheus-prometheus.monitoring.svc.cluster.local:9090
+
+
+GRAFANA:
+
+Connections
+    |
+    +-- Data Sources
+         |
+         +-- Prometheus
+              |
+              +-- URL:
+                  http://monitoring-kube-prometheus-prometheus:9090
+
+
+CLICK:
+
+Save & Test
+
+
+========================================================
+21. INSTALL METRICS SERVER
+========================================================
+
+kubectl apply -f https://github.com/kubernetes-sigs/metrics-server/releases/latest/download/components.yaml
+
+
+CHECK METRICS SERVER:
+
+kubectl get pods -n kube-system | grep metrics
+
+
+CHECK METRICS API:
+
+kubectl get apiservice v1beta1.metrics.k8s.io
+
+
+========================================================
+22. KUBECTL TOP
+========================================================
+
+kubectl top nodes
+
+kubectl top pods
+
+kubectl top pods -A
+
+
+IF YOU GET:
+
+error: Metrics API not available
+
+
+CHECK:
+
+kubectl get pods -n kube-system | grep metrics
+
+kubectl logs -n kube-system deployment/metrics-server
+
+
+========================================================
+23. CHECK EKS POD CAPACITY
+========================================================
+
+CHECK MAXIMUM PODS:
+
+kubectl get node <NODE-NAME> \
+-o jsonpath='{.status.capacity.pods}{"\n"}'
+
+
+CHECK CURRENT POD COUNT:
+
+kubectl get pods -A \
+--field-selector spec.nodeName=<NODE-NAME> \
+--no-headers | wc -l
+
+
+CHECK NODE DETAILS:
+
+kubectl describe node <NODE-NAME>
+
+
+LOOK FOR:
+
+Capacity:
+  pods: 29
+
+Allocatable:
+  pods: 29
+
+
+IMPORTANT:
+
+CPU and Memory can be available while the node
+still cannot schedule another Pod.
+
+Example:
+
+CPU       = Available
+Memory    = Available
+Pods      = 29/29 FULL
+
+
+RESULT:
+
+New Pod = Pending
+
+
+REASON:
+
+Too many pods
+
+
+========================================================
+24. CHECK PENDING POD
+========================================================
+
+kubectl describe pod <POD-NAME>
+
+
+LOOK AT:
+
+Events:
+
+FailedScheduling
+
+
+EXAMPLE:
+
+0/1 nodes are available:
+1 Too many pods.
+
+
+========================================================
+25. CHECK ALL EKS RESOURCES
+========================================================
+
+CHECK NODES:
+
+kubectl get nodes
+
+
+CHECK NODES + IP:
+
+kubectl get nodes -o wide
+
+
+CHECK ALL PODS:
+
+kubectl get pods -A
+
+
+CHECK SERVICES:
+
+kubectl get svc -A
+
+
+CHECK DEPLOYMENTS:
+
+kubectl get deployment -A
+
+
+CHECK MONITORING PODS:
+
+kubectl get pods -n monitoring
+
+
+CHECK MONITORING SERVICES:
+
+kubectl get svc -n monitoring
+
+
+========================================================
+26. USEFUL HELM COMMANDS
+========================================================
+
+helm list -A
+
+helm list -n monitoring
+
+helm status monitoring -n monitoring
+
+helm get notes monitoring -n monitoring
+
+helm get values monitoring -n monitoring
+
+helm get values monitoring -n monitoring --all
+
+helm get all monitoring -n monitoring
+
+helm history monitoring -n monitoring
+
+
+========================================================
+27. USEFUL KUBECTL COMMANDS
+========================================================
+
+kubectl get nodes
+
+kubectl get nodes -o wide
+
+kubectl get pods
+
+kubectl get pods -A
+
+kubectl get pods -n monitoring
+
+kubectl get svc -A
+
+kubectl get svc -n monitoring
+
+kubectl get deployment -A
+
+kubectl describe pod <POD-NAME>
+
+kubectl describe node <NODE-NAME>
+
+kubectl top nodes
+
+kubectl top pods -A
+
+
+========================================================
+28. COMPLETE EKS MONITORING FLOW
+========================================================
+
+Terraform
+    |
+    v
+AWS VPC
+    |
+    v
+EKS Cluster
+    |
+    v
+Worker Nodes
+    |
+    +---------------------------+
+    |                           |
+    v                           v
+NGINX Deployment          Monitoring Namespace
+                                |
+                                +-- Prometheus
+                                |
+                                +-- Grafana
+                                |
+                                +-- Alertmanager
+                                |
+                                +-- Node Exporter
+                                |
+                                +-- kube-state-metrics
+                                |
+                                +-- Metrics Server
+                                |
+                                v
+                         Monitoring / Metrics
+                                |
+                                v
+                     Grafana Dashboards
+
+
+========================================================
+29. QUICK INSTALLATION COMMANDS
+========================================================
+
+UPDATE:
+
+sudo apt update && sudo apt upgrade -y
+
+
+REQUIRED PACKAGES:
+
+sudo apt install -y gnupg software-properties-common wget unzip curl
+
+
+GIT:
+
+sudo apt install git -y
+
+
+TERRAFORM:
+
+sudo apt install -y terraform
+
+
+AWS CLI:
+
+curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o awscliv2.zip
+
+unzip awscliv2.zip
+
+sudo ./aws/install
+
+
+KUBECTL:
+
+curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
+
+sudo install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl
+
+
+HELM:
+
+curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
+
+
+PROMETHEUS REPOSITORY:
+
+helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
+
+helm repo update
+
+
+MONITORING NAMESPACE:
+
+kubectl create namespace monitoring
+
+
+PROMETHEUS + GRAFANA:
+
+helm install monitoring prometheus-community/kube-prometheus-stack -n monitoring
+
+
+METRICS SERVER:
+
+kubectl apply -f https://github.com/kubernetes-sigs/metrics-server/releases/latest/download/components.yaml
+
+
+========================================================
+30. FINAL VERIFICATION
+========================================================
+
+terraform --version
+
+aws --version
+
+git --version
+
+kubectl version --client
+
+helm version
+
+aws sts get-caller-identity
+
+kubectl get nodes
+
+kubectl get pods -A
+
+kubectl get svc -n monitoring
+
+helm list -n monitoring
+
+kubectl top nodes
+
+kubectl top pods -A
+
+
+========================================================
+END OF NOTES
+========================================================
