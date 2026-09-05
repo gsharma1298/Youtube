@@ -1,0 +1,2614 @@
+3 tier web project
+
+
+
+first git clone
+
+git clone :-  git clone https://github.com/gsharma1298/micro-service.git
+
+
+install aws cli 
+
+
+aws configure
+enter access key and private key and region
+
+
+now create s3 bucket 
+cd s3-buckets
+
+terraform init
+terraform plan
+terraform apply --auto-approve
+
+
+now create bastion ec2 instance
+ go to main_ec2
+
+terraform init
+terraform plan
+terraform apply --auto-approve
+
+
+if already have any resorce you have to run import command 
+
+like 
+terraform import aws_iam_instance_profile.instance-profile govind-profile
+terraform import aws_iam_role.iam-role project-iam-role1
+terraform import aws_iam_policy.eks_policy arn:aws:iam::623577189957:policy/eks_policy
+
+
+
+
+
+
+
+
+============================================================
+     AWS EKS MICROSERVICES E-COMMERCE PROJECT
+============================================================
+
+Project:
+Production-Ready Microservices E-Commerce Platform on AWS EKS
+
+Tools:
+AWS | Terraform | Jenkins | Docker | ECR | Kubernetes
+EKS | ArgoCD | Route 53 | ACM | Git | Trivy | Maven
+
+
+============================================================
+STEP 1: CLONE GITHUB REPOSITORY
+============================================================
+
+Open VS Code Terminal:
+
+git clone https://github.com/gsharma1298/micro-service.git
+
+Navigate into the project:
+
+cd micro-service
+
+Check files:
+
+ls
+
+
+============================================================
+STEP 2: CONFIGURE AWS CLI
+============================================================
+
+aws configure
+
+Enter:
+
+AWS Access Key ID:
+AWS Secret Access Key:
+Default region name:
+us-east-1
+
+Default output format:
+json
+
+Verify AWS account:
+
+aws sts get-caller-identity
+
+
+============================================================
+STEP 3: CREATE S3 BUCKET FOR TERRAFORM STATE
+============================================================
+
+Navigate to the S3 Terraform configuration:
+
+cd s3-buckets/
+
+Initialize Terraform:
+
+terraform init
+
+Check the plan:
+
+terraform plan
+
+Create the resources:
+
+terraform apply -auto-approve
+
+
+============================================================
+STEP 4: CREATE NETWORK / JUMPHOST INFRASTRUCTURE
+============================================================
+
+Navigate to Terraform EC2 configuration:
+
+cd ../terraform_main_ec2/
+
+terraform init
+
+
+
+terraform plan
+
+
+terraform apply -auto-approve
+
+
+terraform state list
+
+Get the Jumphost public IP from Terraform output.
+
+
+============================================================
+STEP 5: CONNECT TO jenkins EC2
+============================================================
+
+Connect to the EC2 instance using SSH or AWS Console.
+
+Switch to root:
+
+sudo -i
+
+
+UBUNTU DEVOPS TOOLS INSTALLATION
+================================
+
+1. Update System
+----------------
+sudo apt update
+sudo apt upgrade -y
+
+
+2. Git
+------
+sudo apt install git -y
+
+git --version
+
+
+3. Java
+-------
+sudo apt install openjdk-21-jdk -y
+
+java -version
+
+
+4. Jenkins
+----------
+sudo wget -O /usr/share/keyrings/jenkins-keyring.asc \
+https://pkg.jenkins.io/debian-stable/jenkins.io-2026.key
+
+echo "deb [signed-by=/usr/share/keyrings/jenkins-keyring.asc] \
+https://pkg.jenkins.io/debian-stable binary/" | \
+sudo tee /etc/apt/sources.list.d/jenkins.list
+
+sudo apt update
+sudo apt install jenkins -y
+
+sudo systemctl enable --now jenkins
+
+jenkins --version
+
+
+5. Terraform
+------------
+sudo apt install -y gnupg software-properties-common curl
+
+wget -O- https://apt.releases.hashicorp.com/gpg | \
+gpg --dearmor | \
+sudo tee /usr/share/keyrings/hashicorp-archive-keyring.gpg > /dev/null
+
+echo "deb [signed-by=/usr/share/keyrings/hashicorp-archive-keyring.gpg] \
+https://apt.releases.hashicorp.com $(lsb_release -cs) main" | \
+sudo tee /etc/apt/sources.list.d/hashicorp.list
+
+sudo apt update
+sudo apt install terraform -y
+
+terraform -version
+
+
+6. Maven
+--------
+sudo apt install maven -y
+
+mvn -v
+
+
+7. kubectl
+----------
+curl -LO "https://dl.k8s.io/release/$(curl -L -s \
+https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
+
+sudo install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl
+
+kubectl version --client
+
+
+8. eksctl
+---------
+curl --silent --location \
+"https://github.com/eksctl-io/eksctl/releases/latest/download/eksctl_Linux_amd64.tar.gz" \
+| tar xz -C /tmp
+
+sudo mv /tmp/eksctl /usr/local/bin
+
+eksctl version
+
+
+9. Helm
+-------
+curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
+
+helm version
+
+
+10. Docker
+----------
+sudo apt install docker.io -y
+
+sudo systemctl enable --now docker
+
+sudo usermod -aG docker $USER
+
+docker --version
+
+NOTE:
+Log out and log back in after adding yourself
+to the docker group.
+
+
+11. Trivy
+---------
+sudo apt install wget apt-transport-https gnupg lsb-release -y
+
+wget -qO - https://aquasecurity.github.io/trivy-repo/deb/public.key \
+| gpg --dearmor \
+| sudo tee /usr/share/keyrings/trivy.gpg > /dev/null
+
+echo "deb [signed-by=/usr/share/keyrings/trivy.gpg] \
+https://aquasecurity.github.io/trivy-repo/deb \
+$(lsb_release -sc) main" \
+| sudo tee /etc/apt/sources.list.d/trivy.list
+
+sudo apt update
+sudo apt install trivy -y
+
+trivy --version
+
+
+================================
+VERIFY ALL TOOLS
+================================
+
+git --version
+java -version
+jenkins --version
+terraform -version
+mvn -v
+kubectl version --client
+eksctl version
+helm version
+docker --version
+trivy --version
+
+
+
+
+
+
+
+============================================================
+STEP 7: OPEN JENKINS
+============================================================
+
+Open browser:
+
+http://<JUMPHOST_PUBLIC_IP>:8080
+
+Enter the initial admin password.
+
+sudo cat /var/lib/jenkins/secrets/initialAdminPassword
+
+Install:
+
+Install Suggested Plugins
+
+Create Jenkins admin user.
+
+Complete the Jenkins setup.
+
+
+============================================================
+STEP 8: INSTALL REQUIRED JENKINS PLUGINS
+============================================================
+
+Jenkins Dashboard
+    ->
+Manage Jenkins
+    ->
+Plugins
+    ->
+Available Plugins
+
+
+pipline: stage view
+
+docker
+SonarQube scanner
+
+Search and install required pipeline plugins.
+
+After installation, restart Jenkins if required.
+
+
+
+
+for troubleshooting install kiro cli
+
+curl -fsSL https://cli.kiro.dev/install | bash
+
+
+
+
+
+
+============================================================
+STEP 11: CREATE ECR REPOSITORIES
+============================================================
+
+Create Jenkins pipeline:
+
+Job Name:
+
+ecr-terraform
+
+Pipeline:
+
+Pipeline script from SCM
+
+Repository:
+
+https://github.com/gsharma1298/micro-service.git
+
+Branch:
+
+*/master
+
+Script Path:
+
+ecr-terraform/ecr-jenkinfile
+
+Save.
+
+Click:
+
+Build with Parameters
+
+Terraform Action:
+
+apply
+
+Click:
+
+Build
+
+
+============================================================
+STEP 12: VERIFY ECR REPOSITORIES
+============================================================
+
+Run:
+
+aws ecr describe-repositories --region us-east-1
+
+
+Microservices:
+
+emailservice
+checkoutservice
+recommendationservice
+frontend
+paymentservice
+productcatalogservice
+cartservice
+loadgenerator
+currencyservice
+shippingservice
+adservice
+
+
+============================================================
+STEP 13: JENKINS CREDENTIALS
+============================================================
+
+IMPORTANT:
+
+Never hard-code a GitHub Personal Access Token inside the
+Jenkinsfile or documentation.
+
+Add the GitHub token securely:
+
+Jenkins Dashboard
+    ->
+Manage Jenkins
+    ->
+Credentials
+    ->
+Global
+    ->
+Add Credentials
+
+Kind:
+
+Secret text
+
+Secret:
+
+ur secret
+ID:
+
+git-tokan
+
+Description:
+
+git-tokan
+
+Save.
+
+
+============================================================
+STEP 14: BUILD AND PUSH MICROSERVICE DOCKER IMAGES
+============================================================
+
+Create separate Jenkins pipeline jobs for each service.
+
+Services:
+
+1. emailservice
+2. checkoutservice
+3. recommendationservice
+4. frontend
+5. paymentservice
+6. productcatalogservice
+7. cartservice
+8. loadgenerator
+9. currencyservice
+10. shippingservice
+11. adservice
+
+
+Jenkins Pipeline:
+
+Definition:
+Pipeline script from SCM
+
+SCM:
+Git
+
+Repository:
+
+https://github.com/gsharma1298/micro-service.git
+
+Branch:
+
+*/master
+
+Example:
+
+Job Name:
+
+emailservice
+
+Script Path:
+
+jenkinsfiles/emailservice-jenkinsfile
+
+Click:
+
+Save
+    ->
+Build
+
+
+Repeat the same process for the remaining services.
+
+
+
+
+change the git hub url to your
+
+sed -i 's|https://github.com/gsharma1298/Microservices.git|https://github.com/gsharma1298/micro-service.git|g' jenkinsfiles/*
+
+
+
+
+
+for all at a one time use Jenkins Job DSL Plugin
+
+create job dsljob
+
+select freestyle
+
+add source code git url 
+
+add build step
+ dsl script
+
+
+file system
+jobs/createPipelines.groovy      # path of dsl file
+
+
+build piplene
+
+
+after go to setting for dsl pipeline approval
+
+
+
+
+
+
+
+============================================================
+STEP 15: VERIFY DOCKER IMAGES IN ECR
+============================================================
+
+List ECR repositories:
+
+aws ecr describe-repositories --region ap-south-1
+
+List images:
+
+aws ecr list-images \
+    --repository-name frontend \
+    --region us-east-1
+
+Repeat for other services.
+
+
+
+
+
+
+
+
+============================================================
+STEP 9: CREATE EKS CLUSTER USING JENKINS
+============================================================
+
+Jenkins Dashboard
+    ->
+New Item
+
+Job Name:
+
+eks-terraform
+
+Select:
+
+Pipeline
+
+Click OK.
+
+Pipeline configuration:
+
+Definition:
+Pipeline script from SCM
+
+SCM:
+Git
+
+Repository:
+
+https://github.com/gsharma1298/micro-service.git
+
+Branch:
+
+*/master
+
+Script Path:
+
+eks-terraform/eks-jenkinsfile
+
+Save the job.
+
+Click:
+
+Build with Parameters
+
+Select:
+
+Terraform Action = apply
+
+Click:
+
+Build
+
+
+
+
+iNSTALL AWS cli
+
+
+
+sudo apt update
+
+2. Install AWS CLI
+sudo apt install awscli -y
+
+
+
+4. Configure AWS CLI
+
+aws configure
+
+
+
+create iam user with limited access
+
+
+Enter:
+AWS Access Key ID:
+AWS Secret Access Key:
+Default region name: ap-south-1
+Default output format: json
+
+
+5. Test AWS CLI
+aws sts get-caller-identity
+
+
+
+
+
+
+
+
+
+============================================================
+STEP 10: VERIFY EKS CLUSTER
+============================================================
+
+Configure kubectl:
+
+aws eks update-kubeconfig --region ap-south-1 --name project-eks
+
+Check cluster:
+
+kubectl get nodes
+
+Check namespaces:
+
+kubectl get namespaces
+
+
+
+
+
+============================================================
+STEP 16: INSTALL ARGOCD
+============================================================
+
+Create ArgoCD namespace:
+
+kubectl create namespace argocd
+
+Install ArgoCD:
+
+kubectl apply -n argocd \
+-f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
+
+
+
+
+
+
+
+
+
+
+
+
+
+============================================================
+STEP 17: VERIFY ARGOCD
+============================================================
+
+Check pods:
+
+kubectl get pods -n argocd
+
+All ArgoCD pods should eventually show:
+
+Running
+
+
+Check all resources:
+
+kubectl get all -n argocd
+
+
+============================================================
+STEP 18: EXPOSE ARGOCD
+============================================================
+
+Edit ArgoCD service:
+
+kubectl edit svc argocd-server -n argocd
+
+Change:
+
+type: ClusterIP
+
+to:
+
+type: LoadBalancer
+
+Save and exit.
+
+Check the LoadBalancer:
+
+kubectl get svc argocd-server -n argocd
+
+Copy the EXTERNAL-IP / LoadBalancer DNS.
+
+
+============================================================
+STEP 19: GET ARGOCD ADMIN PASSWORD
+============================================================
+
+Run:
+
+kubectl get secret argocd-initial-admin-secret \
+-n argocd \
+-o jsonpath="{.data.password}" | base64 -d && echo
+
+
+ArgoCD Login:
+
+Username:
+
+admin
+
+Password:
+
+Use the password generated by the command above.
+
+
+============================================================
+STEP 20: CREATE APPLICATION NAMESPACE
+============================================================
+
+Create namespace:
+
+kubectl create namespace prod
+
+Verify:
+
+kubectl get namespaces
+
+
+============================================================
+STEP 21: CREATE APPLICATION IN ARGOCD
+============================================================
+
+Open ArgoCD UI.
+
+Click:
+
++ NEW APP
+
+Application Name:
+
+project
+
+Project:
+
+default
+
+Sync Policy:
+
+Automatic
+
+Repository URL:
+
+https://github.com/gsharma1298/micro-service.git
+
+Revision:
+
+HEAD
+
+Path:
+
+kubernetes-files
+
+Cluster URL:
+
+https://kubernetes.default.svc
+
+Namespace:
+
+dev
+
+Click:
+
+Create
+
+
+============================================================
+STEP 22: VERIFY APPLICATION
+============================================================
+
+Check pods:
+
+kubectl get pods -n prod
+
+Check services:
+
+kubectl get svc -n prod
+
+Check deployments:
+
+kubectl get deployments -n prod
+
+Check everything:
+
+kubectl get all -n prod
+
+
+============================================================
+STEP 23: GET FRONTEND LOAD BALANCER
+============================================================
+
+Run:
+
+kubectl get svc -n prod
+
+
+Find the frontend service.
+
+If it is a LoadBalancer, copy the:
+
+
+if note 
+
+then change 
+
+kubectl edit svc frontend -n prod
+
+
+
+EXTERNAL-IP
+
+or
+
+AWS Load Balancer DNS name.
+
+
+============================================================
+STEP 24: ROUTE 53 CONFIGURATION
+============================================================
+
+Go to:
+
+AWS Console
+    ->
+Route 53
+
+Create or use your Public Hosted Zone.
+
+Example domain:
+
+hr82.online
+
+
+then go to hostinger domain
+copy namerserver from route 53
+
+to add the nameserver in our domain
+
+
+add A record of load balancer in hosted zone
+
+
+also you can create the health of load balancer
+
+
+
+
+Make sure your domain's nameservers point to Route 53.
+
+
+============================================================
+STEP 25: REQUEST SSL CERTIFICATE
+============================================================
+
+Go to:
+
+AWS Certificate Manager (ACM)
+
+Request:
+
+Public Certificate
+
+Domain:
+
+hr82.online
+
+
+Choose:
+
+DNS Validation
+
+Create the DNS validation record in Route 53.
+
+Wait until the certificate status becomes:
+
+ISSUED
+
+
+============================================================
+STEP 26: HTTPS LOAD BALANCER
+============================================================
+
+Open:
+
+AWS Console
+    ->
+EC2
+    ->
+Load Balancers
+
+Select your application Load Balancer.
+
+Configure HTTPS listener:
+
+Protocol:
+
+HTTPS
+
+Port:
+
+443
+
+Certificate:
+
+Select the ACM certificate.
+
+Forward traffic to the application target group.
+
+
+============================================================
+STEP 27: SECURITY GROUP
+============================================================
+
+Allow HTTPS:
+
+Type:
+
+HTTPS
+
+Protocol:
+
+TCP
+
+Port:
+
+443
+
+Source:
+
+0.0.0.0/0
+
+
+If HTTP is required:
+
+Port:
+
+80
+
+
+============================================================
+STEP 28: ROUTE 53 DNS RECORD
+============================================================
+
+Route 53
+    ->
+Hosted Zones
+    ->
+hr82.online
+    ->
+Create Record
+
+Record:
+
+A
+
+Alias:
+
+Yes
+
+Alias Target:
+
+Select the application's AWS Load Balancer.
+
+
+============================================================
+STEP 29: TEST APPLICATION
+============================================================
+
+Open browser:
+
+https://hr82.online
+
+
+Test with curl:
+
+curl -I https://yourdomain.com
+
+Expected:
+
+HTTP 200
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+   MULTI-REGION EKS + ARGO CD PROJECT ARCHITECTURE
+===============================================================
+
+                         USERS / INTERNET
+                                |
+                         hr82.online
+                                v
+                     +--------------------+
+                     |    AWS Route 53    |
+                     |   Failover Routing |
+                     |                    |
+                     | Health Checks      |
+                     +---------+----------+
+                               |
+                 +-------------+-------------+
+                 |                           |
+          PRIMARY REGION              SECONDARY REGION
+           ap-south-1                  us-east-1
+                 v                           v
+        +----------------+          +----------------+
+        |      ALB       |          |      ALB       |
+        |   Primary ALB  |          | Secondary ALB  |
+        +--------+-------+          +--------+-------+
+                 v                           v
+        +----------------+          +----------------+
+        |   EKS Cluster  |          |   EKS Cluster  |
+        |  india         |          | 	 USA	     |
+        |                |          |      	     |
+        +--------+-------+          +--------+-------+
+                 v                           v
+        +----------------+          +----------------+
+        | Kubernetes     |          | Kubernetes     |
+        | Deployment     |          | Deployment     |
+        |                |          |                |
+        | Application    |          | Application    |
+        | Pods           |          | Pods           |
+        +--------+-------+          +--------+-------+
+                 |                           |
+                 +-------------+-------------+
+                         
+                               v
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ amazon ai  kiro install
+
+
+curl -fsSL https://cli.kiro.dev/install | bash
+
+source ~/.bashrc
+
+
+
+
+
+
+
+
+MICROSERVICES E-COMMERCE AWS EKS PROJECT
+=========================================
+
+1. CLONE REPOSITORY
+
+git clone https://github.com/gsharma1298/micro-service.git
+
+
+2. CONFIGURE AWS
+
+aws configure
+
+
+3. PROJECT DIRECTORY
+
+ls
+cd micro-service
+
+
+
+ls
+
+
+4. CREATE S3 BUCKETS / TERRAFORM STATE
+
+cd s3-buckets/
+
+terraform init
+
+terraform plan
+
+terraform apply -auto-approve
+
+
+5. CREATE NETWORK INFRASTRUCTURE
+
+cd ../terraform_main_ec2
+
+terraform init
+
+terraform plan
+
+terraform apply -auto-approve
+
+
+6. CHECK TERRAFORM STATE
+
+terraform state list
+
+
+7. SWITCH TO ROOT USER
+
+sudo -i
+
+
+8. CHECK DEVOPS TOOLS
+
+git --version
+
+java -version
+
+jenkins --version
+
+terraform -version
+
+mvn -v
+
+kubectl version --client --short
+
+eksctl version
+
+helm version --short
+
+docker --version
+
+trivy --version
+
+
+9. GET JENKINS ADMIN PASSWORD
+
+cat /var/lib/jenkins/secrets/initialAdminPassword
+
+
+10. UPDATE EKS KUBECONFIG
+
+aws eks --region us-east-1 update-kubeconfig --name project-eks
+
+
+11. CHECK EKS NODES
+
+kubectl get nodes
+
+
+12. CHECK ECR REPOSITORIES
+
+aws ecr describe-repositories --region us-east-1
+
+
+========================
+ARGOC D
+========================
+
+13. CREATE ARGOCD NAMESPACE
+
+kubectl create namespace argocd
+
+
+14. INSTALL ARGOCD
+
+kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
+
+
+15. CHECK ARGOCD PODS
+
+kubectl get pods -n argocd
+
+
+16. CHECK KUBERNETES NODES
+
+kubectl get nodes
+
+
+17. CHECK ALL ARGOCD RESOURCES
+
+kubectl get all -n argocd
+
+
+18. EDIT ARGOCD SERVICE
+
+kubectl edit svc argocd-server -n argocd
+
+CHANGE:
+
+type: ClusterIP
+
+TO:
+
+type: LoadBalancer
+
+
+19. GET ARGOCD LOAD BALANCER
+
+kubectl get svc argocd-server -n argocd
+
+
+20. GET ARGOCD ADMIN PASSWORD
+
+kubectl get secret argocd-initial-admin-secret -n argocd -o jsonpath="{.data.password}" | base64 -d && echo
+
+
+========================
+APPLICATION NAMESPACE
+========================
+
+21. CREATE DEV NAMESPACE
+
+kubectl create namespace app
+
+
+22. CHECK NAMESPACES
+
+kubectl get namespaces
+
+
+========================
+KUBERNETES VERIFICATION
+========================
+
+23. CHECK ALL PODS
+
+kubectl get pods -A
+
+
+24. CHECK ALL SERVICES
+
+kubectl get svc -A
+
+
+25. CHECK ALL DEPLOYMENTS
+
+kubectl get deployments -A
+
+
+26. CHECK EKS NODES WITH DETAILS
+
+kubectl get nodes -o wide
+
+
+27. CHECK ARGOCD PODS
+
+kubectl get pods -n argocd -o wide
+
+
+28. CHECK ARGOCD SERVICES
+
+kubectl get svc -n argocd
+
+
+29. CHECK APPLICATION PODS
+
+kubectl get pods -n app
+
+
+30. CHECK APPLICATION SERVICES
+
+kubectl get svc -n app
+
+
+31. CHECK APPLICATION DEPLOYMENTS
+
+kubectl get deployments -n app
+
+
+
+
+
+
+
+
+
+
+20. GET ARGOCD ADMIN PASSWORD
+
+kubectl get secret argocd-initial-admin-secret -n argocd -o jsonpath="{.data.password}" | base64 -d && echo
+
+
+========================
+ARGOCD APPLICATION
+========================
+
+REPOSITORY:
+
+https://github.com/gsharma1298/micro-service.git
+
+PATH:
+
+kubernetes-files
+
+REVISION:
+
+HEAD
+
+CLUSTER:
+
+https://kubernetes.default.svc
+
+NAMESPACE:
+
+app
+
+SYNC POLICY:
+
+Automatic
+
+
+
+
+
+
+========================
+JENKINS PIPELINES
+========================
+
+EKS TERRAFORM:
+
+Job Name:
+eks-terraform
+
+Script Path:
+eks-terraform/eks-jenkinsfile
+
+
+ECR TERRAFORM:
+
+Job Name:
+ecr-terraform
+
+Script Path:
+ecr-terraform/ecr-jenkinfile
+
+
+MICROSERVICES:
+
+emailservice
+checkoutservice
+recommendationservice
+frontend
+paymentservice
+productcatalogservice
+cartservice
+loadgenerator
+currencyservice
+shippingservice
+adservice
+
+
+========================
+ROUTE 53 / HTTPS
+========================
+
+DOMAIN:
+
+hr82.online
+
+CHECK DNS:
+
+curl -v http://hr82.online
+
+
+CHECK APPLICATION:
+
+
+
+http://hr82.online
+
+
+
+
+check eks cluster in config
+
+kubectl config get-contexts
+
+
+
+
+add eks cluster in config
+
+aws eks update-kubeconfig --region=ap-south-1 --name=project-eks
+
+aws eks update-kubeconfig --region=us-east-1 --name=project-eks-us-east-1
+
+
+
+kubectl config current-context
+
+kubectl config use-context arn:aws:eks:ap-south-1:623577189957:cluster/project-eks
+
+
+
+install argocd CLI
+
+curl -sSL -o /tmp/argocd https://github.com/argoproj/argo-cd/releases/latest/download/argocd-linux-amd64
+
+sudo install -m 555 /tmp/argocd /usr/local/bin/argocd
+
+argocd version --client
+
+
+
+
+now login in argocd cli to add both cluster in argocd
+
+
+update your username and pass in the below command
+
+argocd login adbe053dd78ff41a39217e345f04fb14-189184928.ap-south-1.elb.amazonaws.com --username admin --password 'admin@123' --insecure
+
+
+
+get user info in argocd
+
+argocd account get-user-info
+
+
+now add cluster in argocd 
+
+argocd cluster add arn:aws:eks:us-east-1:623577189957:cluster/us-east-1
+
+argocd cluster add arn:aws:eks:ap-south-1:623577189957:cluster/project-eks
+
+argocd cluster list
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+VELERO BACKUP SETUP FOR AMAZON EKS USING S3 + IRSA
+==================================================
+
+
+
+
+first create the eks using terraform
+
+terraform init
+terraform plan 
+terraform apply --auto-approve
+
+2. SET AWS VARIABLES
+---------------------
+
+export CLUSTER_NAME=eks
+export REGION=ap-south-1
+export BUCKET=gsharma1298
+
+
+3. CONNECT KUBECTL TO EKS
+--------------------------
+
+aws eks update-kubeconfig --name "$CLUSTER_NAME" --region "$REGION"
+
+kubectl get nodes
+
+
+
+
+1. INSTALL VELERO CLI ON UBUNTU
+--------------------------------
+
+VELERO_VERSION=v1.18.2
+
+curl -LO https://github.com/velero-io/velero/releases/download/${VELERO_VERSION}/velero-${VELERO_VERSION}-linux-amd64.tar.gz
+
+tar -xzf velero-${VELERO_VERSION}-linux-amd64.tar.gz
+
+sudo install velero-${VELERO_VERSION}-linux-amd64/velero /usr/local/bin/velero
+
+velero version --client-only
+
+
+
+
+4. CREATE S3 BUCKET AND ENABLE VERSIONING
+------------------------------------------
+
+aws s3api create-bucket \
+  --bucket "$BUCKET" \
+  --region "$REGION" \
+  --create-bucket-configuration LocationConstraint="$REGION"
+
+
+Enable S3 versioning:
+
+aws s3api put-bucket-versioning \
+  --bucket "$BUCKET" \
+  --versioning-configuration Status=Enabled
+
+check s3 bucket
+
+aws s3 ls
+
+
+5. CREATE OR VERIFY THE EKS OIDC PROVIDER
+------------------------------------------
+
+eksctl utils associate-iam-oidc-provider --cluster "$CLUSTER_NAME" --region "$REGION" --approve
+
+
+
+
+[ Pod ]
+  │
+  ▼ (Uses)
+[ ServiceAccount ] ──(Annotated with: ://amazonaws.com)
+  │
+  ▼ (Exchanges Token)
+[ OIDC Provider ] ──(Validates Kubernetes JWT)
+  │
+  ▼ (Assumes)
+[ IAM Role ] ──(Trust policy allows OIDC assume action)
+  │
+  ▼ (Evaluates)
+[ IAM Policy ] ──(Grants actual permissions to cloud resources)
+
+
+
+
+
+6. IAM POLICY FOR VELERO
+------------------------
+
+Create a file named velero-policy.json:
+
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Action": [
+        "ec2:DescribeVolumes",
+        "ec2:DescribeSnapshots",
+        "ec2:CreateTags",
+        "ec2:CreateVolume",
+        "ec2:CreateSnapshot",
+        "ec2:DeleteSnapshot"
+      ],
+      "Resource": "*"
+    },
+    {
+      "Effect": "Allow",
+      "Action": [
+        "s3:GetObject",
+        "s3:DeleteObject",
+        "s3:PutObject",
+        "s3:AbortMultipartUpload",
+        "s3:ListMultipartUploadParts"
+      ],
+      "Resource": "arn:aws:s3:::gsharma1298/*"
+    },
+    {
+      "Effect": "Allow",
+      "Action": [
+        "s3:ListBucket",
+        "s3:GetBucketLocation"
+      ],
+      "Resource": "arn:aws:s3:::gsharma1298"
+    }
+  ]
+}
+
+
+
+
+
+IMPORTANT:
+
+Replace BOTH occurrences of YOUR-BUCKET-NAME with your real S3 bucket name.
+Use /* for S3 objects. Do not use BUCKET-NAME*.
+
+
+
+Create the policy if it does not already exist:
+
+aws iam create-policy \
+  --policy-name gsharma1298-policy \
+  --policy-document file://velero-policy.json
+
+Attach the policy to the role:
+
+aws iam attach-role-policy \
+  --role-name gsharma1298-role \
+  --policy-arn arn:aws:iam::623577189957:policy/gsharma1298-policy
+
+Verify:
+
+aws iam list-attached-role-policies \
+  --role-name gsharma1298-role
+
+
+
+
+
+8. INSTALL VELERO
+-----------------
+
+velero install \
+  --provider aws \
+  --plugins velero/velero-plugin-for-aws:v1.14.0 \
+  --bucket "$BUCKET" \
+  --backup-location-config region="$REGION" \
+  --snapshot-location-config region="$REGION" \
+  --use-node-agent \
+  --no-secret \
+  --wait
+
+
+
+	kubectl get pods -n velero
+
+
+9. ADD IAM ROLE ANNOTATION TO VELERO SERVICE ACCOUNT
+------------------------------------------------------
+
+
+kubectl get serviceaccount -n velero
+kubectl edit serviceaccount -n velero
+
+
+add the below annotation in yml and restart/ rollout velereo
+
+annotations:
+  eks.amazonaws.com/role-arn: arn:aws:iam::623577189957:role/gsharma1298-role
+
+
+If you don't want edit do the cli annotation
+
+kubectl annotate serviceaccount velero -n velero \
+  eks.amazonaws.com/role-arn=arn:aws:iam::623577189957:role/govind-eks-velero-us-east-1 \
+  --overwrite
+
+
+kubectl rollout restart deployment/velero -n velero
+
+
+
+
+11. VERIFY S3 BACKUP LOCATION
+------------------------------
+
+velero backup-location get
+
+
+IF THE S3 BUCKET OR REGION IS WRONG
+
+kubectl get backupstoragelocation default -n velero -o yaml
+
+Edit it:
+
+kubectl edit backupstoragelocation default -n velero
+
+
+kubectl rollout restart deployment/velero -n velero
+
+Verify again:
+
+velero backup-location get
+
+
+
+
+
+Create deployment in default namespace
+
+kubectl create deployment nginx --image=nginx --replicas=8
+
+kubectl get pods
+
+
+CREATE BACKUP OF DEFAULT NAMESPACE ONLY
+--------------------------------------------
+
+velero backup create first-backup --include-namespaces default --wait
+
+
+velero backup get
+
+velero backup describe first-backup --details
+
+velero backup logs first-backup
+
+
+
+
+
+
+delete the deployment 
+
+kubectl get deployment
+kubectl get pods
+
+kubectl delete deployment nginx
+
+
+
+
+14. RESTORE first-backup
+------------------------
+
+Restore into the original default namespace:
+
+velero restore create restore-first-backup --from-backup first-backup --wait
+
+
+velero restore get
+
+velero restore describe restore-first-backup --details
+
+NOTE:
+If resources already exist in the default namespace, Velero can skip them or
+report conflicts.
+
+For a safer test restore into a new namespace:
+
+velero restore create restore-first-backup-test --from-backup first-backup --namespace-mappings default:test --wait
+
+
+
+
+
+Check restored resources:
+
+kubectl get all -n restore-test
+
+
+15. DELETE A TEST BACKUP
+------------------------
+
+velero backup delete first-backup --confirm
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+UBUNTU + AWS + TERRAFORM + EKS + HELM MONITORING
+========================================================
+
++------+ → +------+ → +------+ → +----------------+ → +----------+ → +--------+ → +-----------+
+| EKS  |   | Node |   | Pods |   | Exporter + KSM |   | Prometheus|   | Grafana|   | Dashboard |
++------+   +------+   +------+   +----------------+   +----------+   +--------+   +-----------+
+
+Tools for MONITORING 
+========================================================
+
+Node Exporter     = Node CPU / Memory / Disk metrics
+Kube-State-Metrics = Pod / Deployment / Replica / Status metrics
+Prometheus        = Collects metrics
+Grafana           = Visualizes metrics
+
+
+PROJECT WORKFLOW
+================
+
+Ubuntu
+  |
+  +-- Terraform
+  +-- AWS CLI
+  +-- Git
+  +-- kubectl
+  +-- Helm
+  |
+  +-- EKS Cluster
+       |
+       +-- NGINX Deployment
+       +-- Prometheus
+       +-- Grafana
+       +-- Metrics Server
+
+
+========================================================
+1. UPDATE UBUNTU SYSTEM
+========================================================
+
+sudo apt update && sudo apt upgrade -y
+
+
+========================================================
+2. INSTALL REQUIRED PACKAGES
+========================================================
+
+sudo apt install -y gnupg software-properties-common wget unzip curl
+
+
+========================================================
+3. INSTALL TERRAFORM
+========================================================
+
+wget -O- https://apt.releases.hashicorp.com/gpg | \
+sudo gpg --dearmor -o /usr/share/keyrings/hashicorp-archive-keyring.gpg
+
+echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/hashicorp-archive-keyring.gpg] https://apt.releases.hashicorp.com $(grep -oP '(?<=UBUNTU_CODENAME=).*' /etc/os-release || lsb_release -cs) main" | \
+sudo tee /etc/apt/sources.list.d/hashicorp.list
+
+sudo apt update
+
+sudo apt install -y terraform
+
+
+VERIFY TERRAFORM
+----------------
+
+terraform --version
+
+
+========================================================
+4. INSTALL AWS CLI
+========================================================
+
+curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+
+unzip awscliv2.zip
+
+sudo ./aws/install
+
+
+VERIFY AWS CLI
+--------------
+
+aws --version
+
+
+CONFIGURE AWS CLI
+-----------------
+
+aws configure
+
+AWS Access Key ID:     <YOUR_ACCESS_KEY>
+AWS Secret Access Key: <YOUR_SECRET_KEY>
+Default region name:   us-east-1
+Default output format: json
+
+
+TEST AWS CLI
+------------
+
+aws sts get-caller-identity
+
+
+CHECK AWS REGION
+----------------
+
+aws configure get region
+
+
+VERIFY TERRAFORM + AWS CLI
+--------------------------
+
+terraform --version && aws --version
+
+
+========================================================
+5. INSTALL GIT
+========================================================
+
+sudo apt install git -y
+
+
+CLONE PROJECT
+-------------
+
+git clone https://github.com/gsharma1298/Youtube.git
+
+
+GO TO EKS MONITORING PROJECT
+----------------------------
+
+cd Youtube/eks_monitoring
+
+
+========================================================
+6. TERRAFORM - CREATE EKS INFRASTRUCTURE
+========================================================
+
+terraform init
+
+terraform plan
+
+terraform apply --auto-approve
+
+
+========================================================
+7. INSTALL KUBECTL
+========================================================
+
+sudo apt update
+
+sudo apt install -y curl
+
+curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
+
+sudo install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl
+
+
+VERIFY KUBECTL
+--------------
+
+kubectl version --client
+
+
+OPTIONAL SHORT COMMAND
+----------------------
+
+alias k=kubectl
+
+
+MAKE ALIAS PERMANENT
+--------------------
+
+echo 'alias k=kubectl' >> ~/.bashrc
+
+source ~/.bashrc
+
+
+========================================================
+8. CONNECT TO EKS CLUSTER
+========================================================
+
+aws eks update-kubeconfig --region us-east-1 --name us-eks
+
+
+CHECK CURRENT CONTEXT
+--------------------
+
+kubectl config current-context
+
+
+========================================================
+9. CHECK EKS CLUSTER
+========================================================
+
+kubectl get nodes
+
+kubectl get nodes -o wide
+
+kubectl get deployment
+
+kubectl get pods
+
+kubectl get pods -n kube-system
+
+
+========================================================
+10. CREATE NGINX DEPLOYMENT
+========================================================
+
+kubectl create deployment nginx --image=nginx --replicas=5
+
+
+CHECK PODS
+----------
+
+kubectl get pods
+
+
+CHECK DEPLOYMENT
+----------------
+
+kubectl get deployment nginx
+
+
+WATCH PODS
+----------
+
+kubectl get pods -w
+
+
+========================================================
+11. INSTALL HELM
+========================================================
+
+curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
+
+
+VERIFY HELM
+-----------
+
+helm version
+
+
+========================================================
+12. ADD PROMETHEUS HELM REPOSITORY
+========================================================
+
+helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
+
+
+UPDATE HELM REPOSITORIES
+------------------------
+
+helm repo update
+
+
+VERIFY HELM REPOSITORIES
+------------------------
+
+helm repo list
+
+
+========================================================
+13. CREATE MONITORING NAMESPACE
+========================================================
+
+kubectl create namespace monitoring
+
+
+VERIFY NAMESPACE
+----------------
+
+kubectl get namespace monitoring
+
+
+========================================================
+14. INSTALL PROMETHEUS + GRAFANA
+========================================================
+
+helm install monitoring prometheus-community/kube-prometheus-stack \
+-n monitoring
+
+
+========================================================
+15. CHECK MONITORING INSTALLATION
+========================================================
+
+helm list -n monitoring
+
+kubectl get pods -n monitoring
+
+kubectl get svc -n monitoring
+
+
+WATCH MONITORING PODS
+---------------------
+
+kubectl get pods -n monitoring -w
+
+
+========================================================
+16. HELM RELEASE INFORMATION
+========================================================
+
+GET INSTALLATION NOTES:
+
+helm get notes monitoring -n monitoring
+
+
+GET USER VALUES:
+
+helm get values monitoring -n monitoring
+
+
+GET ALL VALUES:
+
+helm get values monitoring -n monitoring --all
+
+
+GET COMPLETE RELEASE INFORMATION:
+
+helm get all monitoring -n monitoring
+
+
+GET RELEASE HISTORY:
+
+helm history monitoring -n monitoring
+
+
+========================================================
+17. GRAFANA SERVICE
+========================================================
+
+kubectl get svc monitoring-grafana -n monitoring
+
+
+EDIT GRAFANA SERVICE: (NodePort or LoadBalancer)
+
+kubectl edit svc monitoring-grafana -n monitoring
+
+
+CHECK SERVICE AGAIN:
+
+kubectl get svc monitoring-grafana -n monitoring
+
+
+========================================================
+18. GET WORKER NODE PUBLIC IP
+========================================================
+
+kubectl get nodes -o wide
+
+
+LOOK FOR:
+
+PUBLIC-IP
+
+
+GRAFANA NODEPORT URL:
+
+http://<NODE-PUBLIC-IP>:<NODE-PORT>
+
+
+EXAMPLE:
+
+http://13.xxx.xxx.xxx:31460
+
+
+NOTE:
+If using NodePort, the required port must be allowed
+in the EC2 worker-node Security Group.
+
+
+========================================================
+19. GET GRAFANA ADMIN PASSWORD
+========================================================
+
+kubectl get secret monitoring-grafana \
+-n monitoring \
+-o jsonpath="{.data.admin-password}" | base64 -d
+
+echo
+
+
+GRAFANA USERNAME:
+
+admin
+
+
+========================================================
+20. PROMETHEUS URL FOR GRAFANA DATA SOURCE
+========================================================
+
+PROMETHEUS SERVICE:
+
+monitoring-kube-prometheus-prometheus
+
+
+PROMETHEUS URL:
+
+http://monitoring-kube-prometheus-prometheus:9090
+
+
+FULL DNS:
+
+http://monitoring-kube-prometheus-prometheus.monitoring.svc.cluster.local:9090
+
+
+GRAFANA:
+
+Connections
+    |
+    +-- Data Sources
+         |
+         +-- Prometheus
+              |
+              +-- URL:
+                  http://monitoring-kube-prometheus-prometheus:9090
+
+
+CLICK:
+
+Save & Test
+
+
+========================================================
+21. INSTALL METRICS SERVER
+========================================================
+
+kubectl apply -f https://github.com/kubernetes-sigs/metrics-server/releases/latest/download/components.yaml
+
+
+CHECK METRICS SERVER:
+
+kubectl get pods -n kube-system | grep metrics
+
+
+CHECK METRICS API:
+
+kubectl get apiservice v1beta1.metrics.k8s.io
+
+
+========================================================
+22. KUBECTL TOP
+========================================================
+
+kubectl top nodes
+
+kubectl top pods
+
+kubectl top pods -A
+
+
+IF YOU GET:
+
+error: Metrics API not available
+
+
+CHECK:
+
+kubectl get pods -n kube-system | grep metrics
+
+kubectl logs -n kube-system deployment/metrics-server
+
+
+========================================================
+23. CHECK EKS POD CAPACITY
+========================================================
+
+CHECK MAXIMUM PODS:
+
+kubectl get node <NODE-NAME> \
+-o jsonpath='{.status.capacity.pods}{"\n"}'
+
+
+CHECK CURRENT POD COUNT:
+
+kubectl get pods -A \
+--field-selector spec.nodeName=<NODE-NAME> \
+--no-headers | wc -l
+
+
+CHECK NODE DETAILS:
+
+kubectl describe node <NODE-NAME>
+
+
+LOOK FOR:
+
+Capacity:
+  pods: 29
+
+Allocatable:
+  pods: 29
+
+
+IMPORTANT:
+
+CPU and Memory can be available while the node
+still cannot schedule another Pod.
+
+Example:
+
+CPU       = Available
+Memory    = Available
+Pods      = 29/29 FULL
+
+
+RESULT:
+
+New Pod = Pending
+
+
+REASON:
+
+Too many pods
+
+
+========================================================
+24. CHECK PENDING POD
+========================================================
+
+kubectl describe pod <POD-NAME>
+
+
+LOOK AT:
+
+Events:
+
+FailedScheduling
+
+
+EXAMPLE:
+
+0/1 nodes are available:
+1 Too many pods.
+
+
+========================================================
+25. CHECK ALL EKS RESOURCES
+========================================================
+
+CHECK NODES:
+
+kubectl get nodes
+
+
+CHECK NODES + IP:
+
+kubectl get nodes -o wide
+
+
+CHECK ALL PODS:
+
+kubectl get pods -A
+
+
+CHECK SERVICES:
+
+kubectl get svc -A
+
+
+CHECK DEPLOYMENTS:
+
+kubectl get deployment -A
+
+
+CHECK MONITORING PODS:
+
+kubectl get pods -n monitoring
+
+
+CHECK MONITORING SERVICES:
+
+kubectl get svc -n monitoring
+
+
+========================================================
+26. USEFUL HELM COMMANDS
+========================================================
+
+helm list -A
+
+helm list -n monitoring
+
+helm status monitoring -n monitoring
+
+helm get notes monitoring -n monitoring
+
+helm get values monitoring -n monitoring
+
+helm get values monitoring -n monitoring --all
+
+helm get all monitoring -n monitoring
+
+helm history monitoring -n monitoring
+
+
+========================================================
+27. USEFUL KUBECTL COMMANDS
+========================================================
+
+kubectl get nodes
+
+kubectl get nodes -o wide
+
+kubectl get pods
+
+kubectl get pods -A
+
+kubectl get pods -n monitoring
+
+kubectl get svc -A
+
+kubectl get svc -n monitoring
+
+kubectl get deployment -A
+
+kubectl describe pod <POD-NAME>
+
+kubectl describe node <NODE-NAME>
+
+kubectl top nodes
+
+kubectl top pods -A
+
+
+========================================================
+28. COMPLETE EKS MONITORING FLOW
+========================================================
+
+Terraform
+    |
+    v
+AWS VPC
+    |
+    v
+EKS Cluster
+    |
+    v
+Worker Nodes
+    |
+    +---------------------------+
+    |                           |
+    v                           v
+NGINX Deployment          Monitoring Namespace
+                                |
+                                +-- Prometheus
+                                |
+                                +-- Grafana
+                                |
+                                +-- Alertmanager
+                                |
+                                +-- Node Exporter
+                                |
+                                +-- kube-state-metrics
+                                |
+                                +-- Metrics Server
+                                |
+                                v
+                         Monitoring / Metrics
+                                |
+                                v
+                     Grafana Dashboards
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
