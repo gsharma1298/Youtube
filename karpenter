@@ -1,0 +1,318 @@
+
+
+**Cluster Autoscaler:** Existing node group ke andar nodes ko **add/remove** karta hai.
+
+**Karpenter:** Workload ki requirement ke according **directly suitable EC2 node provision/remove** karta hai.
+
+👉*CA = Node Group based | Karpenter = Workload based**
+
+
+
+
+
+
++-------------+     +------------+     +----------+     +--------------+     +---------+     +------------------+     +----------+
+| EKS CLUSTER | --> | KARPENTER  | --> | NODEPOOL | --> | EC2NODECLASS | --> | AWS EC2 | --> | NEW WORKER NODE | --> | PODS RUN |
++-------------+     +------------+     +----------+     +--------------+     +---------+     +------------------+     +----------+
+
+
+
+Controller Role = Node banane/manage karne ki permission
+Node Role = Node ke andar Kubernetes chalane ki permission
+
+
+
+
+
+
+KarpenterNodeRole
+
+  aws service - ec2 --
+
+add policy
+
+AmazonEKSWorkerNodePolicy
+AmazonEKS_CNI_Policy
+AmazonSSMManagedInstanceCore
+AmazonEC2ContainerRegistryPullOnly
+
+create role
+
+
+-----------------------------------------------------------------
+
+
+KarpenterControllerRole
+
+
+oIDC eks - https://oidc.eks.ap-south-1.amazonaws.com/id/A87404B873D0E8C54567592B9015E5F1
+
+
+
+{
+  "Statement": [
+    {
+      "Action": [
+        "ssm:GetParameter",
+        "ec2:DescribeImages",
+        "ec2:RunInstances",
+        "ec2:DescribeSubnets",
+        "ec2:DescribeSecurityGroups",
+        "ec2:DescribeLaunchTemplates",
+        "ec2:DescribeInstances",
+        "ec2:DescribeInstanceTypes",
+        "ec2:DescribeInstanceTypeOfferings",
+        "ec2:DeleteLaunchTemplate",
+        "ec2:CreateTags",
+        "ec2:CreateLaunchTemplate",
+        "ec2:CreateFleet",
+        "ec2:DescribeSpotPriceHistory",
+        "pricing:GetProducts"
+      ],
+      "Effect": "Allow",
+      "Resource": "*",
+      "Sid": "Karpenter"
+    },
+    {
+      "Action": "ec2:TerminateInstances",
+      "Condition": {
+        "StringLike": {
+          "ec2:ResourceTag/karpenter.sh/nodepool": "*"
+        }
+      },
+      "Effect": "Allow",
+      "Resource": "*",
+      "Sid": "ConditionalEC2Termination"
+    },
+    {
+      "Effect": "Allow",
+      "Action": "iam:PassRole",
+      "Resource": "arn:aws:iam::623577189957:role/KarpenterNodeRole",
+      "Sid": "PassNodeIAMRole"
+    },
+    {
+      "Effect": "Allow",
+      "Action": "eks:DescribeCluster",
+      "Resource": "arn:aws:eks:ap-south-1:623577189957:cluster/eks",
+      "Sid": "EKSClusterEndpointLookup"
+    },
+    {
+      "Sid": "AllowScopedInstanceProfileCreationActions",
+      "Effect": "Allow",
+      "Resource": "*",
+      "Action": [
+        "iam:CreateInstanceProfile"
+      ],
+      "Condition": {
+        "StringEquals": {
+          "aws:RequestTag/kubernetes.io/cluster/eks": "owned",
+          "aws:RequestTag/topology.kubernetes.io/region": "ap-south-1"
+        },
+        "StringLike": {
+          "aws:RequestTag/karpenter.k8s.aws/ec2nodeclass": "*"
+        }
+      }
+    },
+    {
+      "Sid": "AllowScopedInstanceProfileTagActions",
+      "Effect": "Allow",
+      "Resource": "*",
+      "Action": [
+        "iam:TagInstanceProfile"
+      ],
+      "Condition": {
+        "StringEquals": {
+          "aws:ResourceTag/kubernetes.io/cluster/eks": "owned",
+          "aws:ResourceTag/topology.kubernetes.io/region": "ap-south-1",
+          "aws:RequestTag/kubernetes.io/cluster/eks": "owned",
+          "aws:RequestTag/topology.kubernetes.io/region": "ap-south-1"
+        },
+        "StringLike": {
+          "aws:ResourceTag/karpenter.k8s.aws/ec2nodeclass": "*",
+          "aws:RequestTag/karpenter.k8s.aws/ec2nodeclass": "*"
+        }
+      }
+    },
+    {
+      "Sid": "AllowScopedInstanceProfileActions",
+      "Effect": "Allow",
+      "Resource": "*",
+      "Action": [
+        "iam:AddRoleToInstanceProfile",
+        "iam:RemoveRoleFromInstanceProfile",
+        "iam:DeleteInstanceProfile"
+      ],
+      "Condition": {
+        "StringEquals": {
+          "aws:ResourceTag/kubernetes.io/cluster/eks": "owned",
+          "aws:ResourceTag/topology.kubernetes.io/region": "ap-south-1"
+        },
+        "StringLike": {
+          "aws:ResourceTag/karpenter.k8s.aws/ec2nodeclass": "*"
+        }
+      }
+    },
+    {
+      "Sid": "AllowInstanceProfileReadActions",
+      "Effect": "Allow",
+      "Resource": "*",
+      "Action": "iam:GetInstanceProfile"
+    },
+    {
+      "Sid": "AllowUnscopedInstanceProfileListAction",
+      "Effect": "Allow",
+      "Resource": "*",
+      "Action": "iam:ListInstanceProfiles"
+    }
+  ],
+  "Version": "2012-10-17"
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+assign tag to subnet 
+
+name = eks
+
+
+
+assingn tag to security group
+
+name = eks
+
+
+
+
+
+
+
+deploye karpanter
+
+
+
+
+
+helm install karpenter oci://public.ecr.aws/karpenter/karpenter --version "1.14.1" \
+    --namespace karpenter --create-namespace \
+    --set "settings.clusterName=eks" \
+    --set "settings.interruptionQueue=eks" \
+    --set "serviceAccount.annotations.eks\.amazonaws\.com/role-arn=arn:aws:iam::623577189957:role/KarpenterControllerRole" \
+    --set controller.resources.requests.cpu=300m \
+    --set controller.resources.requests.memory=128Mi \
+    --set controller.resources.limits.cpu=500m \
+    --set controller.resources.limits.memory=512Mi
+
+
+
+create nodepool and node class
+
+
+
+
+nodepool.yml
+
+
+
+
+apiVersion: karpenter.sh/v1
+kind: NodePool
+metadata:
+  name: general-purpose
+spec:
+  template:
+    spec:
+      requirements:
+        - key: kubernetes.io/arch
+          operator: In
+          values: ["amd64"]
+
+        - key: kubernetes.io/os
+          operator: In
+          values: ["linux"]
+
+        - key: karpenter.sh/capacity-type
+          operator: In
+          values: ["on-demand"]
+
+        - key: node.kubernetes.io/instance-type
+          operator: In
+          values: ["t3.small"]
+
+      nodeClassRef:
+        group: karpenter.k8s.aws
+        kind: EC2NodeClass
+        name: default
+
+---
+apiVersion: karpenter.k8s.aws/v1
+kind: EC2NodeClass
+metadata:
+  name: default
+spec:
+  role: "KarpenterNodeRole"
+
+  subnetSelectorTerms:
+    - tags:
+        name: "eks"
+
+  securityGroupSelectorTerms:
+    - tags:
+        name: "eks"
+
+  amiSelectorTerms:
+    - alias: al2023@latest
+
+
+
+
+
+kubectl apply -f nodepool.yml 
+
+
+
+
+
+
+
+
+now go to eks cluster 
+
+
+
+go access  -- manage --- identity --- add controllnode role --- then save
+
+
+
+
+
+kubectl create deployment nginx --image=nginx --replicas=9
+
+
+kubectl scale deployment nginx --replicas=100
+
+
+kubectl scale deployment nginx --replicas=1
+
+
+
+
+
+
+.
+
+
+.
+
+
