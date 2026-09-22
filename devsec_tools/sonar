@@ -1,0 +1,218 @@
+SonarQube
+
+
+
+SonarQube is a code quality and security analysis tool used in the **CI/CD pipeline**.
+
+### What it checks
+
+* 🐛 **Bugs** – coding errors
+* 🔐 **Vulnerabilities** – security issues
+* 🧹 **Code Smells** – maintainability problems
+* 📊 **Code Coverage** – how much code is tested
+* 🔁 **Duplications** – duplicate code
+
+```
+
+
+
+
+
+
+
+\### Important terms
+
+
+
+| Term             | Meaning                                       |
+
+| ---------------- | --------------------------------------------- |
+
+| \*\*SonarQube\*\*    | Server/UI that stores and analyzes results    |
+
+| \*\*SonarScanner\*\* | Tool that scans source code                   |
+
+| \*\*Project Key\*\*  | Unique ID of the project                      |
+
+| \*\*Token\*\*        | Authentication credential                     |
+
+| \*\*Quality Gate\*\* | Pass/fail criteria for code quality           |
+
+| \*\*Dashboard\*\*    | Shows bugs, vulnerabilities, smells, coverage |
+
+
+
+\*\*Interview one-liner:\*\*
+
+
+
+> “SonarQube is used in CI/CD to perform static code analysis and identify bugs, vulnerabilities, code smells, coverage, and duplication before deployment.”
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+install Jenkins in ubuntu
+
+
+
+
+
+sudo apt update
+
+sudo apt install fontconfig openjdk-21-jre
+
+java -version
+
+
+
+
+
+sudo wget -O /etc/apt/keyrings/jenkins-keyring.asc \\
+
+&#x20; https://pkg.jenkins.io/debian-stable/jenkins.io-2026.key
+
+echo "deb \[signed-by=/etc/apt/keyrings/jenkins-keyring.asc]" \\
+
+&#x20; https://pkg.jenkins.io/debian-stable binary/ | sudo tee \\
+
+&#x20; /etc/apt/sources.list.d/jenkins.list > /dev/null
+
+sudo apt update
+
+sudo apt install jenkins
+
+
+
+
+
+
+
+
+
+
+
+Install docker
+
+
+
+sudo apt update -y
+
+sudo apt install docker.io -y
+
+sudo systemctl enable --now docker
+
+
+
+usermode -aG docker $USER jenkins
+
+sudo systemctl restart Jenkins
+
+
+
+
+
+
+
+
+
+
+
+docker run -d \\
+
+&#x20; --name sonarqube \\
+
+&#x20; -p 9000:9000 \\
+
+&#x20; sonarqube:lts-community
+
+
+
+
+
+token path
+
+
+
+http://13.202.246.201:9000/account/security
+
+
+
+
+
+
+
+sonar tokan
+
+
+
+squ\_d5548512c198272976f22fc95fe95f53ea4d91f6
+
+
+
+
+
+
+pipeline {
+    agent any
+
+    environment {
+        SCANNER_HOME = tool 'sonar-scanner'
+    }
+
+    stages {
+
+        stage('Git Checkout') {
+            steps {
+                git branch: 'main',
+                    url: 'https://github.com/gsharma1298/django-notes-app.git'
+            }
+        }
+
+        stage('SonarQube Scan') {
+            steps {
+                withCredentials([
+                    string(
+                        credentialsId: 'sonar',
+                        variable: 'SONAR_TOKEN'
+                    )
+                ]) {
+                    sh '''
+                        $SCANNER_HOME/bin/sonar-scanner \
+                          -Dsonar.projectKey=test \
+                          -Dsonar.projectName=test \
+                          -Dsonar.sources=. \
+                          -Dsonar.host.url=http://13.202.246.201:9000 \
+                          -Dsonar.token=$SONAR_TOKEN
+                    '''
+                }
+            }
+        }
+
+        stage('Docker Build') {
+            steps {
+                sh '''
+                    docker build -t my:${BUILD_NUMBER} .
+                '''
+            }
+        }
+    }
+
+    post {
+        always {
+            echo 'Pipeline completed.'
+        }
+    }
+}
