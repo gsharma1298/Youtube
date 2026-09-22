@@ -1,0 +1,174 @@
+DEVSEC TOOL = Trivy
+
+Trivy = **Aqua Security’s vulnerability scanner**
+
+In short:
+
+> \*\*Trivy is an open-source security scanner used to find vulnerabilities in container images, filesystems, Git repositories, Kubernetes configurations, and dependencies.\*\*
+
+### Interview one-liner
+**“Trivy is a lightweight DevSecOps security tool used to scan container images and source code for known vulnerabilities and misconfigurations.”**
+
+Example:
+
+trivy image nginx:latest
+```
+
+
+
+It can detect:
+
+\- 🔴 \*\*Critical/High vulnerabilities\*\*
+
+\- 📦 OS \& application dependency vulnerabilities
+
+\- 🐳 Docker image vulnerabilities
+
+\- ☸️ Kubernetes misconfigurations
+
+\- 🔐 Secrets and sensitive information
+
+
+
+
+
+
+
+
+
+**install Jenkins in ubuntu**
+
+
+
+
+
+sudo apt update
+
+sudo apt install fontconfig openjdk-21-jre
+
+java -version
+
+
+
+
+
+sudo wget -O /etc/apt/keyrings/jenkins-keyring.asc \\
+
+&#x20; https://pkg.jenkins.io/debian-stable/jenkins.io-2026.key
+
+echo "deb \[signed-by=/etc/apt/keyrings/jenkins-keyring.asc]" \\
+
+&#x20; https://pkg.jenkins.io/debian-stable binary/ | sudo tee \\
+
+&#x20; /etc/apt/sources.list.d/jenkins.list > /dev/null
+
+sudo apt update
+
+sudo apt install jenkins
+
+
+
+
+
+
+
+
+
+
+
+Install docker
+
+
+
+sudo apt update -y
+
+sudo apt install docker.io -y
+
+sudo systemctl enable --now docker
+
+
+
+usermode -aG docker $USER jenkins
+
+sudo systemctl restart Jenkins
+
+
+
+
+
+
+
+Install trivyy
+
+
+
+sudo apt update -y
+
+sudo apt install trivy -y
+
+
+
+
+
+pipeline {
+    agent any
+
+    stages {
+
+        stage('Git Checkout') {
+            steps {
+                git branch: 'main',
+                    url: 'https://github.com/gsharma1298/django-notes-app.git'
+            }
+        }
+
+        stage('Docker Build') {
+            steps {
+                sh 'docker build -t my:${BUILD_NUMBER} .'
+            }
+        }
+
+        stage('Trivy Scan') {
+            steps {
+                sh '''
+                    trivy image \
+                      --severity HIGH,CRITICAL \
+                      --exit-code 1 \
+                      my:${BUILD_NUMBER}
+                '''
+            }
+        }
+    }
+
+    post {
+        always {
+            echo 'Pipeline completed.'
+        }
+    }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+.
