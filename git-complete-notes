@@ -1,0 +1,1745 @@
+============================================================
+                    GIT COMPLETE TUTORIAL
+          Commands + One-Line Definition + Example
+============================================================
+
+1. GIT BASICS
+============================================================
+
+1. git --version
+
+Definition:
+Shows the installed Git version.
+
+Example:
+git --version
+
+
+2. git config --global user.name
+
+Definition:
+Sets the username that Git uses for commits.
+
+Example:
+git config --global user.name "Govind Sharma"
+
+
+3. git config --global user.email
+
+Definition:
+Sets the email address that Git uses for commits.
+
+Example:
+git config --global user.email "govind@example.com"
+
+
+4. git config --list
+
+Definition:
+Displays Git configuration settings.
+
+Example:
+git config --list
+
+
+5. git help
+
+Definition:
+Displays help/documentation for Git commands.
+
+Example:
+git help commit
+
+
+============================================================
+2. CREATE / CLONE REPOSITORY
+============================================================
+
+6. git init
+
+Definition:
+Initializes a new Git repository in the current directory.
+
+Example:
+mkdir myproject
+cd myproject
+git init
+
+
+7. git clone
+
+Definition:
+Copies an existing remote Git repository to your local machine.
+
+Example:
+git clone https://github.com/user/project.git
+
+
+8. git clone -b
+
+Definition:
+Clones a specific branch from a remote repository.
+
+Example:
+git clone -b develop https://github.com/user/project.git
+
+
+============================================================
+3. CHECK REPOSITORY STATUS
+============================================================
+
+9. git status
+
+Definition:
+Shows modified, staged, and untracked files.
+
+Example:
+git status
+
+
+10. git status -s
+
+Definition:
+Shows Git status in short format.
+
+Example:
+git status -s
+
+
+============================================================
+4. WORKING WITH FILES
+============================================================
+
+11. git add
+
+Definition:
+Moves file changes from the working directory to the staging area.
+
+Example:
+git add app.py
+
+
+12. git add .
+
+Definition:
+Stages all changed and untracked files in the current directory.
+
+Example:
+git add .
+
+
+13. git add -A
+
+Definition:
+Stages all changes including added, modified, and deleted files.
+
+Example:
+git add -A
+
+
+14. git restore
+
+Definition:
+Discards unstaged changes from a file.
+
+Example:
+git restore app.py
+
+
+15. git rm
+
+Definition:
+Deletes a file and stages the deletion.
+
+Example:
+git rm old.txt
+
+
+16. git mv
+
+Definition:
+Renames or moves a file while tracking the change in Git.
+
+Example:
+git mv old.txt new.txt
+
+
+============================================================
+5. COMMIT COMMANDS
+============================================================
+
+17. git commit
+
+Definition:
+Creates a commit from the staged changes.
+
+Example:
+git commit -m "Add login feature"
+
+
+18. git commit -a
+
+Definition:
+Stages and commits modified/deleted tracked files in one step.
+
+Example:
+git commit -am "Fix login bug"
+
+
+19. git commit --amend
+
+Definition:
+Modifies the most recent commit.
+
+Example:
+git commit --amend -m "Updated login feature"
+
+
+20. git log
+
+Definition:
+Displays the commit history.
+
+Example:
+git log
+
+
+21. git log --oneline
+
+Definition:
+Displays commit history in compact one-line format.
+
+Example:
+git log --oneline
+
+
+22. git log --graph
+
+Definition:
+Displays commit history as a graphical branch structure.
+
+Example:
+git log --oneline --graph --all
+
+
+23. git show
+
+Definition:
+Displays details and changes of a specific commit.
+
+Example:
+git show abc123
+
+
+============================================================
+6. GIT BRANCHES
+============================================================
+
+24. git branch
+
+Definition:
+Lists local branches.
+
+Example:
+git branch
+
+
+25. git branch -a
+
+Definition:
+Lists both local and remote branches.
+
+Example:
+git branch -a
+
+
+26. git branch -r
+
+Definition:
+Lists only remote branches.
+
+Example:
+git branch -r
+
+
+27. git branch branch-name
+
+Definition:
+Creates a new branch.
+
+Example:
+git branch develop
+
+
+28. git switch branch-name
+
+Definition:
+Switches to an existing branch.
+
+Example:
+git switch develop
+
+
+29. git switch -c branch-name
+
+Definition:
+Creates a new branch and switches to it.
+
+Example:
+git switch -c feature-login
+
+
+30. git checkout branch-name
+
+Definition:
+Switches to another branch using the older checkout command.
+
+Example:
+git checkout develop
+
+
+31. git checkout -b branch-name
+
+Definition:
+Creates a new branch and switches to it.
+
+Example:
+git checkout -b feature-login
+
+
+32. git branch -m new-name
+
+Definition:
+Renames the current branch.
+
+Example:
+git branch -m main
+
+
+33. git branch -d branch-name
+
+Definition:
+Deletes a local branch that has been merged.
+
+Example:
+git branch -d feature-login
+
+
+34. git branch -D branch-name
+
+Definition:
+Force-deletes a local branch.
+
+Example:
+git branch -D feature-login
+
+
+35. git branch -vv
+
+Definition:
+Shows branches with their upstream remote branches and tracking status.
+
+Example:
+git branch -vv
+
+
+============================================================
+7. MERGE
+============================================================
+
+36. git merge
+
+Definition:
+Combines changes from one branch into the current branch.
+
+Example:
+
+git switch main
+git merge develop
+
+
+37. git merge --no-ff
+
+Definition:
+Creates a merge commit even when Git could perform a fast-forward merge.
+
+Example:
+git merge --no-ff feature-login
+
+
+38. git merge --abort
+
+Definition:
+Cancels a merge when conflicts occur.
+
+Example:
+git merge --abort
+
+
+============================================================
+8. REMOTE REPOSITORY
+============================================================
+
+39. git remote
+
+Definition:
+Displays configured remote repositories.
+
+Example:
+git remote
+
+
+40. git remote -v
+
+Definition:
+Displays remote repository URLs for fetch and push.
+
+Example:
+git remote -v
+
+
+41. git remote add origin
+
+Definition:
+Adds a remote repository named origin.
+
+Example:
+git remote add origin https://github.com/user/project.git
+
+
+42. git remote remove
+
+Definition:
+Removes a configured remote repository.
+
+Example:
+git remote remove origin
+
+
+43. git remote rename
+
+Definition:
+Renames a remote repository.
+
+Example:
+git remote rename origin upstream
+
+
+============================================================
+9. PUSH COMMANDS
+============================================================
+
+44. git push
+
+Definition:
+Uploads local commits to a remote repository.
+
+Example:
+git push
+
+
+45. git push origin main
+
+Definition:
+Pushes the local main branch to the origin remote.
+
+Example:
+git push origin main
+
+
+46. git push -u origin main
+
+Definition:
+Pushes a branch and sets its upstream tracking branch.
+
+Example:
+git push -u origin main
+
+
+47. git push --force
+
+Definition:
+Forcefully overwrites the remote branch with local history.
+
+Example:
+git push --force
+
+
+IMPORTANT:
+Avoid force push on shared branches such as main unless you
+fully understand the impact.
+
+
+48. git push --force-with-lease
+
+Definition:
+Force-pushes only when the remote branch has not changed unexpectedly.
+
+Example:
+git push --force-with-lease
+
+
+49. git push origin --delete branch-name
+
+Definition:
+Deletes a branch from the remote repository.
+
+Example:
+git push origin --delete feature-login
+
+
+============================================================
+10. PULL / FETCH
+============================================================
+
+50. git fetch
+
+Definition:
+Downloads remote changes without modifying your working branch.
+
+Example:
+git fetch origin
+
+
+51. git fetch --all
+
+Definition:
+Fetches updates from all configured remotes.
+
+Example:
+git fetch --all
+
+
+52. git pull
+
+Definition:
+Fetches remote changes and integrates them into the current branch.
+
+Example:
+git pull
+
+
+53. git pull origin main
+
+Definition:
+Fetches and integrates the remote main branch.
+
+Example:
+git pull origin main
+
+
+54. git pull --rebase
+
+Definition:
+Fetches remote changes and replays local commits on top of them.
+
+Example:
+git pull --rebase origin main
+
+
+============================================================
+11. REMOTE BRANCH TRACKING
+============================================================
+
+55. git branch -u origin/main
+
+Definition:
+Sets origin/main as the upstream branch for the current branch.
+
+Example:
+git branch -u origin/main
+
+
+56. git push -u origin feature-login
+
+Definition:
+Pushes feature-login and establishes upstream tracking.
+
+Example:
+git push -u origin feature-login
+
+
+57. git checkout -b feature-login origin/feature-login
+
+Definition:
+Creates a local branch based on an existing remote branch.
+
+Example:
+git checkout -b feature-login origin/feature-login
+
+
+58. git switch --track origin/develop
+
+Definition:
+Creates and tracks a local branch from the remote branch.
+
+Example:
+git switch --track origin/develop
+
+
+============================================================
+12. GIT DIFF
+============================================================
+
+59. git diff
+
+Definition:
+Shows unstaged changes.
+
+Example:
+git diff
+
+
+60. git diff --staged
+
+Definition:
+Shows changes currently in the staging area.
+
+Example:
+git diff --staged
+
+
+61. git diff branch1 branch2
+
+Definition:
+Compares changes between two branches.
+
+Example:
+git diff main develop
+
+
+62. git diff HEAD
+
+Definition:
+Shows all changes since the last commit.
+
+Example:
+git diff HEAD
+
+
+============================================================
+13. UNDO CHANGES
+============================================================
+
+63. git restore file
+
+Definition:
+Removes unstaged changes from a file.
+
+Example:
+git restore app.py
+
+
+64. git restore --staged file
+
+Definition:
+Removes a file from staging without deleting its changes.
+
+Example:
+git restore --staged app.py
+
+
+65. git reset
+
+Definition:
+Moves HEAD and optionally changes the staging area or working tree.
+
+Example:
+git reset HEAD~1
+
+
+66. git reset --soft HEAD~1
+
+Definition:
+Removes the latest commit but keeps changes staged.
+
+Example:
+git reset --soft HEAD~1
+
+
+67. git reset --mixed HEAD~1
+
+Definition:
+Removes the latest commit and unstages the changes.
+
+Example:
+git reset --mixed HEAD~1
+
+
+68. git reset --hard HEAD~1
+
+Definition:
+Removes the latest commit and discards its changes.
+
+Example:
+git reset --hard HEAD~1
+
+
+WARNING:
+git reset --hard can permanently remove uncommitted work.
+
+
+============================================================
+14. REVERT
+============================================================
+
+69. git revert
+
+Definition:
+Creates a new commit that reverses the changes of an earlier commit.
+
+Example:
+git revert abc123
+
+
+IMPORTANT DIFFERENCE:
+
+reset:
+Changes Git history.
+
+revert:
+Creates a new commit to undo previous changes.
+
+For shared production branches, revert is generally safer
+because it preserves the existing history.
+
+
+============================================================
+15. GIT STASH
+============================================================
+
+70. git stash
+
+Definition:
+Temporarily saves uncommitted changes.
+
+Example:
+git stash
+
+
+71. git stash push -m
+
+Definition:
+Saves changes with a descriptive stash message.
+
+Example:
+git stash push -m "WIP login feature"
+
+
+72. git stash list
+
+Definition:
+Lists all saved stashes.
+
+Example:
+git stash list
+
+
+73. git stash show
+
+Definition:
+Shows information about a stash.
+
+Example:
+git stash show stash@{0}
+
+
+74. git stash pop
+
+Definition:
+Applies the latest stash and removes it from the stash list.
+
+Example:
+git stash pop
+
+
+75. git stash apply
+
+Definition:
+Applies a stash without removing it from the stash list.
+
+Example:
+git stash apply stash@{0}
+
+
+76. git stash drop
+
+Definition:
+Deletes a specific stash.
+
+Example:
+git stash drop stash@{0}
+
+
+77. git stash clear
+
+Definition:
+Deletes all stashes.
+
+Example:
+git stash clear
+
+
+============================================================
+16. TAGS
+============================================================
+
+78. git tag
+
+Definition:
+Lists existing Git tags.
+
+Example:
+git tag
+
+
+79. git tag v1.0
+
+Definition:
+Creates a lightweight tag.
+
+Example:
+git tag v1.0
+
+
+80. git tag -a
+
+Definition:
+Creates an annotated tag with metadata and a message.
+
+Example:
+git tag -a v1.0 -m "Release version 1.0"
+
+
+81. git show v1.0
+
+Definition:
+Displays information about a tag.
+
+Example:
+git show v1.0
+
+
+82. git push origin v1.0
+
+Definition:
+Pushes a specific tag to the remote repository.
+
+Example:
+git push origin v1.0
+
+
+83. git push origin --tags
+
+Definition:
+Pushes all local tags to the remote repository.
+
+Example:
+git push origin --tags
+
+
+84. git tag -d v1.0
+
+Definition:
+Deletes a local tag.
+
+Example:
+git tag -d v1.0
+
+
+85. git push origin --delete v1.0
+
+Definition:
+Deletes a tag from the remote repository.
+
+Example:
+git push origin --delete v1.0
+
+
+============================================================
+17. GIT REBASE
+============================================================
+
+86. git rebase
+
+Definition:
+Moves or reapplies commits onto another base commit.
+
+Example:
+git switch feature
+git rebase main
+
+
+87. git rebase -i
+
+Definition:
+Interactively edits, combines, reorders, or removes commits.
+
+Example:
+git rebase -i HEAD~3
+
+
+88. git rebase --continue
+
+Definition:
+Continues a rebase after resolving conflicts.
+
+Example:
+git rebase --continue
+
+
+89. git rebase --abort
+
+Definition:
+Cancels an ongoing rebase.
+
+Example:
+git rebase --abort
+
+
+90. git rebase --skip
+
+Definition:
+Skips the current commit during a rebase.
+
+Example:
+git rebase --skip
+
+
+============================================================
+18. CHERRY-PICK
+============================================================
+
+91. git cherry-pick
+
+Definition:
+Applies the changes from a specific commit to the current branch.
+
+Example:
+git cherry-pick abc123
+
+
+92. git cherry-pick --abort
+
+Definition:
+Cancels an ongoing cherry-pick operation.
+
+Example:
+git cherry-pick --abort
+
+
+93. git cherry-pick --continue
+
+Definition:
+Continues cherry-pick after resolving conflicts.
+
+Example:
+git cherry-pick --continue
+
+
+============================================================
+19. GIT LOG / HISTORY
+============================================================
+
+94. git log
+
+Definition:
+Shows commit history.
+
+Example:
+git log
+
+
+95. git log --oneline
+
+Definition:
+Shows compact commit history.
+
+Example:
+git log --oneline
+
+
+96. git log --author
+
+Definition:
+Shows commits made by a specific author.
+
+Example:
+git log --author="Govind"
+
+
+97. git log --since
+
+Definition:
+Shows commits after a specific date.
+
+Example:
+git log --since="2 weeks ago"
+
+
+98. git log -p
+
+Definition:
+Shows commits along with their code changes.
+
+Example:
+git log -p
+
+
+99. git reflog
+
+Definition:
+Shows the history of HEAD and branch reference movements.
+
+Example:
+git reflog
+
+
+IMPORTANT:
+reflog is extremely useful for recovering accidentally deleted
+commits or branches.
+
+
+============================================================
+20. GIT RESET vs REVERT vs REBASE
+============================================================
+
+RESET
+
+Definition:
+Moves the branch pointer backward/forward.
+
+Example:
+git reset --hard HEAD~1
+
+
+REVERT
+
+Definition:
+Creates a new commit that reverses an old commit.
+
+Example:
+git revert abc123
+
+
+REBASE
+
+Definition:
+Replays commits on top of another base.
+
+Example:
+git rebase main
+
+
+Simple interview answer:
+
+"Reset changes history, revert creates a new undo commit,
+and rebase rewrites/replays commits onto a new base."
+
+
+============================================================
+21. GIT CONFLICT
+============================================================
+
+100. git status
+
+Definition:
+Shows files that have merge/rebase conflicts.
+
+Example:
+git status
+
+
+101. git add conflicted-file
+
+Definition:
+Marks a resolved conflict as resolved.
+
+Example:
+git add app.py
+
+
+102. git merge --abort
+
+Definition:
+Cancels a merge conflict operation.
+
+Example:
+git merge --abort
+
+
+103. git rebase --abort
+
+Definition:
+Cancels a rebase conflict operation.
+
+Example:
+git rebase --abort
+
+
+Basic conflict workflow:
+
+git pull
+# Conflict occurs
+
+git status
+
+# Edit the conflicted file
+
+git add app.py
+
+git commit
+
+
+============================================================
+22. GITIGNORE
+============================================================
+
+104. .gitignore
+
+Definition:
+Specifies files and directories Git should not track.
+
+Example:
+
+Create:
+
+.gitignore
+
+Add:
+
+.env
+node_modules/
+*.log
+target/
+
+
+105. git check-ignore
+
+Definition:
+Checks whether a file is ignored by Git.
+
+Example:
+git check-ignore .env
+
+
+============================================================
+23. REMOVE FILE FROM GIT
+============================================================
+
+106. git rm --cached
+
+Definition:
+Stops tracking a file while keeping it on the local system.
+
+Example:
+git rm --cached .env
+
+
+107. git rm -r --cached
+
+Definition:
+Stops tracking a directory while keeping it locally.
+
+Example:
+git rm -r --cached node_modules/
+
+
+============================================================
+24. GIT CLEAN
+============================================================
+
+108. git clean -n
+
+Definition:
+Shows untracked files that would be deleted without deleting them.
+
+Example:
+git clean -n
+
+
+109. git clean -f
+
+Definition:
+Deletes untracked files.
+
+Example:
+git clean -f
+
+
+110. git clean -fd
+
+Definition:
+Deletes untracked files and directories.
+
+Example:
+git clean -fd
+
+
+WARNING:
+Use git clean carefully because deleted untracked files may
+not be recoverable through Git.
+
+
+============================================================
+25. GIT BLAME
+============================================================
+
+111. git blame
+
+Definition:
+Shows which commit and author last modified each line.
+
+Example:
+git blame app.py
+
+
+============================================================
+26. GIT SHORTLOG
+============================================================
+
+112. git shortlog
+
+Definition:
+Summarizes commits by author.
+
+Example:
+git shortlog
+
+
+113. git shortlog -sn
+
+Definition:
+Shows commit counts grouped by author.
+
+Example:
+git shortlog -sn
+
+
+============================================================
+27. GIT ARCHIVE
+============================================================
+
+114. git archive
+
+Definition:
+Creates an archive of repository files without the .git directory.
+
+Example:
+git archive --format=zip HEAD > project.zip
+
+
+============================================================
+28. GIT SUBMODULE
+============================================================
+
+115. git submodule add
+
+Definition:
+Adds another Git repository inside the current repository.
+
+Example:
+git submodule add https://github.com/user/common.git common
+
+
+116. git submodule update --init
+
+Definition:
+Initializes and downloads configured submodules.
+
+Example:
+git submodule update --init
+
+
+============================================================
+29. GIT REMOTE BRANCH CLEANUP
+============================================================
+
+117. git fetch --prune
+
+Definition:
+Fetches remote updates and removes stale remote-tracking branches.
+
+Example:
+git fetch --prune
+
+
+118. git remote prune origin
+
+Definition:
+Removes stale remote-tracking references from origin.
+
+Example:
+git remote prune origin
+
+
+============================================================
+30. GIT CONFIG / ALIASES
+============================================================
+
+119. git config --global alias.st status
+
+Definition:
+Creates a shortcut for a Git command.
+
+Example:
+git config --global alias.st status
+
+Now:
+
+git st
+
+means:
+
+git status
+
+
+120. git config --global alias.co checkout
+
+Definition:
+Creates a shortcut for checkout.
+
+Example:
+git config --global alias.co checkout
+
+
+============================================================
+31. GIT OBJECT / HASH
+============================================================
+
+121. git rev-parse HEAD
+
+Definition:
+Displays the commit hash of the current HEAD.
+
+Example:
+git rev-parse HEAD
+
+
+122. git rev-parse --abbrev-ref HEAD
+
+Definition:
+Displays the current branch name.
+
+Example:
+git rev-parse --abbrev-ref HEAD
+
+
+============================================================
+32. GIT WORKTREE
+============================================================
+
+123. git worktree add
+
+Definition:
+Creates another working directory connected to the same repository.
+
+Example:
+git worktree add ../feature feature-login
+
+
+124. git worktree list
+
+Definition:
+Lists all working trees associated with the repository.
+
+Example:
+git worktree list
+
+
+125. git worktree remove
+
+Definition:
+Removes a Git worktree.
+
+Example:
+git worktree remove ../feature
+
+
+============================================================
+33. COMMON DEVOPS GIT WORKFLOW
+============================================================
+
+Step 1:
+Clone repository
+
+git clone https://github.com/user/project.git
+
+Step 2:
+Enter project
+
+cd project
+
+Step 3:
+Check branches
+
+git branch -a
+
+Step 4:
+Update main
+
+git switch main
+git pull origin main
+
+Step 5:
+Create feature branch
+
+git switch -c feature-login
+
+Step 6:
+Make changes
+
+vim app.py
+
+Step 7:
+Check changes
+
+git status
+git diff
+
+Step 8:
+Stage changes
+
+git add .
+
+Step 9:
+Commit
+
+git commit -m "Add login feature"
+
+Step 10:
+Push branch
+
+git push -u origin feature-login
+
+Step 11:
+Create Pull Request
+
+GitHub/GitLab/Bitbucket
+
+Step 12:
+After PR merge
+
+git switch main
+git pull origin main
+
+
+============================================================
+34. COMMON PRODUCTION WORKFLOW
+============================================================
+
+Developer:
+
+git switch -c feature-payment
+
+git add .
+
+git commit -m "Add payment service"
+
+git push -u origin feature-payment
+
+        |
+        v
+
+Pull Request
+        |
+        v
+
+Code Review
+        |
+        v
+
+Merge to develop
+        |
+        v
+
+CI/CD Pipeline
+        |
+        v
+
+Testing
+        |
+        v
+
+Production
+
+
+============================================================
+35. GIT INTERVIEW QUESTIONS
+============================================================
+
+Q1. What is Git?
+
+Answer:
+Git is a distributed version control system used to track
+code changes and collaborate with other developers.
+
+
+Q2. What is GitHub?
+
+Answer:
+GitHub is a cloud platform for hosting and collaborating
+on Git repositories.
+
+
+Q3. Git vs GitHub?
+
+Answer:
+
+Git:
+Version control tool.
+
+GitHub:
+Cloud platform that hosts Git repositories.
+
+
+Q4. What is a repository?
+
+Answer:
+A repository is a Git-managed project containing files,
+commits, branches, and Git metadata.
+
+
+Q5. What is staging?
+
+Answer:
+Staging is the area where changes are prepared before commit.
+
+Example:
+
+git add app.py
+
+
+Q6. What is a commit?
+
+Answer:
+A commit is a snapshot of staged changes in Git history.
+
+Example:
+
+git commit -m "Fix login"
+
+
+Q7. What is a branch?
+
+Answer:
+A branch is an independent line of development.
+
+Example:
+
+git switch -c develop
+
+
+Q8. What is HEAD?
+
+Answer:
+HEAD points to the currently checked-out commit or branch.
+
+
+Q9. What is origin?
+
+Answer:
+origin is the default name commonly assigned to the cloned
+remote repository.
+
+
+Q10. What is upstream?
+
+Answer:
+Upstream is the remote branch associated with a local branch.
+
+
+============================================================
+36. IMPORTANT INTERVIEW DIFFERENCES
+============================================================
+
+git fetch vs git pull
+
+FETCH:
+Downloads changes only.
+
+PULL:
+Downloads and integrates changes.
+
+
+git merge vs git rebase
+
+MERGE:
+Combines histories and normally creates a merge commit.
+
+REBASE:
+Replays commits on a new base and creates a linear history.
+
+
+git reset vs git revert
+
+RESET:
+Rewrites/moves history.
+
+REVERT:
+Creates a new commit that reverses previous changes.
+
+
+git pull vs git pull --rebase
+
+PULL:
+Usually fetch + merge.
+
+PULL --REBASE:
+Fetch + replay local commits on top of remote changes.
+
+
+git add vs git commit
+
+ADD:
+Moves changes to staging.
+
+COMMIT:
+Saves staged changes into Git history.
+
+
+============================================================
+37. MOST IMPORTANT COMMANDS FOR DEVOPS
+============================================================
+
+git clone
+git init
+git status
+git add
+git commit
+git log
+git branch
+git switch
+git merge
+git rebase
+git fetch
+git pull
+git push
+git stash
+git cherry-pick
+git revert
+git reset
+git tag
+git remote
+git diff
+git reflog
+git restore
+git rm
+git fetch --prune
+
+
+============================================================
+38. REAL DEVOPS INTERVIEW SCENARIO
+============================================================
+
+Question:
+
+You are working on a feature and suddenly your manager asks
+you to fix a production issue. What will you do?
+
+
+Answer:
+
+1. Save current work:
+
+git stash
+
+
+2. Switch to production branch:
+
+git switch main
+
+
+3. Get latest code:
+
+git pull origin main
+
+
+4. Create hotfix branch:
+
+git switch -c hotfix-production
+
+
+5. Fix the issue.
+
+6. Commit:
+
+git add .
+git commit -m "Fix production issue"
+
+
+7. Push:
+
+git push -u origin hotfix-production
+
+
+8. After the hotfix is merged, return to feature branch:
+
+git switch feature-login
+
+
+9. Restore previous work:
+
+git stash pop
+
+
+============================================================
+39. REAL MERGE CONFLICT SCENARIO
+============================================================
+
+Suppose:
+
+main:
+A --- B --- C
+
+feature:
+A --- B --- D
+
+Now merge:
+
+git switch main
+git merge feature
+
+Conflict may occur.
+
+Check:
+
+git status
+
+Open conflicted file.
+
+Resolve:
+
+<<<<<<< HEAD
+main code
+=======
+feature code
+>>>>>>> feature
+
+Remove conflict markers and keep the required code.
+
+Then:
+
+git add .
+
+git commit -m "Resolve merge conflict"
+
+
+============================================================
+40. GOLDEN GIT COMMAND FLOW
+============================================================
+
+Everyday developer flow:
+
+git pull
+git switch -c feature
+# Make changes
+git status
+git diff
+git add .
+git commit -m "Add feature"
+git push -u origin feature
+
+============================================================
+                    END OF GIT TUTORIAL
+============================================================
